@@ -2,63 +2,27 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<style>
-:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-body{margin:0;font:14px system-ui,sans-serif}
-img{max-width:100%}
-</style>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>LGE Analyse foot</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap">
 <style>
-/* Layout: une colonne mobile. En-tête, quatre onglets (Avant-match, En direct, Résultats, Mes matchs), seuil de probabilité partagé, cartes de matchs triées par heure. */
+/* Layout: une colonne mobile. En-tête, clé API (au premier lancement), quatre onglets, seuil de probabilité, choix du jour et du groupe de compétitions, cartes de matchs. */
 :root{
   --bg:#F3F5F4; --surface:#FFFFFF; --fg:#101A16; --muted:#5B6B63; --line:#D9E0DC;
   --accent:#1B7F4B; --accent-fg:#FFFFFF; --accent-soft:#DDF1E6;
   --warn:#8F5400; --warn-soft:#FAEBD0; --blue:#2F6FB5; --neutral:#8C9A93; --bad:#C62828; --bad-fg:#FFFFFF;
   --display:'Space Grotesk',system-ui,sans-serif; --text:'Inter',system-ui,sans-serif;
-  --scrim:rgba(255,255,255,.30); --veil:rgba(255,255,255,.86);
+  color-scheme:light;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
     --bg:#0C1310; --surface:#151F1A; --fg:#E8EEEA; --muted:#98A9A0; --line:#263530;
     --accent:#4CC585; --accent-fg:#07110B; --accent-soft:#173226;
     --warn:#E3A945; --warn-soft:#352A12; --blue:#6FA8E8; --neutral:#6F7F77; --bad:#FF8A80; --bad-fg:#2A0A07; color-scheme:dark;
-    --scrim:rgba(6,10,8,.55); --veil:rgba(12,19,16,.86); --bgb:.5;
   }
 }
-:root[data-theme="dark"]{
-  --bg:#0C1310; --surface:#151F1A; --fg:#E8EEEA; --muted:#98A9A0; --line:#263530;
-  --accent:#4CC585; --accent-fg:#07110B; --accent-soft:#173226;
-  --warn:#E3A945; --warn-soft:#352A12; --blue:#6FA8E8; --neutral:#6F7F77; --bad:#FF8A80; --bad-fg:#2A0A07; color-scheme:dark;
-  --scrim:rgba(6,10,8,.55); --veil:rgba(12,19,16,.86); --bgb:.5;
-}
 *{box-sizing:border-box}
-[hidden]{display:none!important}
-.ai-btn{background:var(--accent-soft);color:var(--fg);border:1px solid var(--line);border-radius:10px;padding:8px 12px;font:inherit;font-weight:600;cursor:pointer;margin-top:8px}
-.ai-btn:disabled{opacity:.6;cursor:progress}
-.ai-out{white-space:pre-wrap;font-size:.9rem;line-height:1.5;border-left:3px solid var(--accent);padding:6px 10px;margin-top:8px}
-.noai .ai-btn,.noai .ai-out{display:none}
-.opts{border-top:1px solid var(--line);padding-top:8px}
-.opts summary{cursor:pointer;font-weight:600;font-size:.88rem}
-.opts .chips{margin-top:8px}
-.opts h4{margin:10px 0 0;font-size:.8rem;color:var(--muted);font-weight:600}
-.big-score{font-family:var(--display);font-size:2rem;font-weight:700;font-variant-numeric:tabular-nums;line-height:1}
-#intro{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;background:var(--bg);transition:opacity .5s}
-#intro.out{opacity:0;pointer-events:none}
-#intro h2{font-size:1.9rem;letter-spacing:-.01em;opacity:0;animation:introIn .7s .5s forwards}
-#intro p{margin:0;color:var(--muted);opacity:0;animation:introIn .7s .8s forwards}
-.balls{display:flex;gap:18px;align-items:flex-end;height:110px}
-.balls span{font-size:2.6rem;display:inline-block;animation:bounce .8s cubic-bezier(.3,.7,.4,1) infinite alternate;transform-origin:50% 100%}
-.balls span:nth-child(2){animation-delay:.15s}.balls span:nth-child(3){animation-delay:.3s}.balls span:nth-child(4){animation-delay:.45s}
-@keyframes bounce{from{transform:translateY(0) rotate(0) scale(1.05,.9)}to{transform:translateY(-80px) rotate(360deg) scale(1)}}
-@keyframes introIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-@media (prefers-reduced-motion:reduce){.balls span{animation:none}#intro h2,#intro p{animation:none;opacity:1}}
-.bgfx{position:fixed;inset:-24px;z-index:-1;pointer-events:none;overflow:hidden;opacity:.95}
-.bgfx svg{display:block;width:100%;height:100%;filter:blur(3px) brightness(var(--bgb,1))}
-:root{--bgb:1}
-header .sub,.cards>.note,.cards>.cards>.note{color:var(--fg)}
-header a,.cards>.note a,.cards>.cards>.note a{color:var(--fg)}
+html,body{margin:0}
 body{background:var(--bg);color:var(--fg);font-family:var(--text);font-size:15px;line-height:1.5;
   padding-block:20px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 .wrap{max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
@@ -67,8 +31,12 @@ h1{font-size:1.75rem;font-weight:700;letter-spacing:-.01em}
 h2{font-size:1.1rem;font-weight:700}
 .sub{color:var(--muted);margin:6px 0 0}
 a{color:var(--accent);font-weight:600}
+.head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.head button{white-space:nowrap;flex:none}
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:12px}
 .note{font-size:.88rem;color:var(--muted);margin:0}
+.callout{border-left:3px solid var(--warn);padding:2px 0 2px 12px;margin:0;color:var(--muted);font-size:.9rem}
+.callout.bad{border-left-color:var(--bad);color:var(--fg)}
 .tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px}
 .tab{flex:1 0 auto;white-space:nowrap;font-family:var(--display);font-weight:700;padding:10px 14px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--muted)}
 .tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
@@ -76,9 +44,8 @@ a{color:var(--accent);font-weight:600}
 .th-val{font-family:var(--display);font-size:1.6rem;font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums}
 label{font-size:.82rem;font-weight:600;color:var(--muted);display:flex;flex-direction:column;gap:4px;min-width:0}
 input[type=range]{width:100%;accent-color:var(--accent)}
-input[type=text],select{font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 10px;width:100%;min-width:0}
-input:focus-visible,select:focus-visible,button:focus-visible,summary:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.summary{font-weight:600;margin:0}
+input[type=password]{font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 10px;width:100%;min-width:0}
+input:focus-visible,button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .filters{display:flex;gap:6px;flex-wrap:wrap}
 .fbtn{font-size:.84rem;padding:6px 12px;border-radius:999px;font-weight:600;color:var(--muted)}
 .fbtn[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--fg)}
@@ -88,12 +55,14 @@ input:focus-visible,select:focus-visible,button:focus-visible,summary:focus-visi
 .meta{font-size:.76rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600}
 .teams{font-family:var(--display);font-size:1.08rem;font-weight:700;overflow-wrap:anywhere}
 .badge{font-size:.72rem;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--warn-soft);color:var(--warn)}
+.badge.live{background:var(--bad);color:var(--bad-fg)}
 .xg{font-size:.84rem;color:var(--muted)}
 .xg b{color:var(--fg);font-variant-numeric:tabular-nums}
 .bar{display:flex;height:8px;border-radius:4px;overflow:hidden;gap:2px}
 .bar span{display:block;min-width:2px}
 .b1{background:var(--accent)}.bx{background:var(--neutral)}.b2{background:var(--blue)}
 .legend{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;font-size:.8rem;font-variant-numeric:tabular-nums}
+.legend.two{grid-template-columns:repeat(2,1fr)}
 .legend div{display:flex;flex-direction:column}
 .legend b{font-size:1rem}
 .legend small{color:var(--muted)}
@@ -102,208 +71,120 @@ input:focus-visible,select:focus-visible,button:focus-visible,summary:focus-visi
 .chip b{font-variant-numeric:tabular-nums;color:var(--fg)}
 .chip small{font-size:.74rem}
 .chip.ok{background:var(--accent-soft);border-color:var(--accent);color:var(--fg)}
+.chip.lose{background:transparent;border-color:var(--bad);color:var(--fg)}
 .more{font-size:.8rem;color:var(--muted);align-self:center}
 .none{font-size:.84rem;color:var(--warn);margin:0}
-.val{overflow-x:auto}
-table{border-collapse:collapse;width:100%;font-size:.84rem;font-variant-numeric:tabular-nums}
-th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
-th{font-weight:600;color:var(--muted)}
-td.pos{color:var(--accent);font-weight:600}
-.pvs{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:6px;font-size:.84rem;font-weight:600}
-.pv.ok{color:var(--accent)}
-.pv.ko{color:var(--bad)}
-.actions{display:flex;gap:8px;flex-wrap:wrap}
 button{font:inherit;font-size:.88rem;font-weight:600;border-radius:8px;padding:8px 14px;border:1px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer}
 button.primary{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
-button.danger{color:var(--warn)}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.grid .full{grid-column:1/-1}
-.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-.sect{font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600;margin:6px 0 0}
-.res{display:flex;flex-direction:column;gap:2px;padding:10px 0;border-bottom:1px solid var(--line)}
-.res:last-child{border-bottom:0}
-.res-row{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center}
-.res-row .r{text-align:right}
-.res-row b{font-family:var(--display);font-size:1.1rem;font-variant-numeric:tabular-nums}
-.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-.stat{display:flex;flex-direction:column}
-.stat b{font-family:var(--display);font-size:1.3rem;font-variant-numeric:tabular-nums}
-.stat small{color:var(--muted)}
-.callout{border-left:3px solid var(--warn);padding:2px 0 2px 12px;margin:0;color:var(--muted);font-size:.9rem}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
 .mark{flex:none;width:34px;height:34px;border-radius:50%;display:inline-grid;place-items:center}
 .mark.big{width:42px;height:42px}
 .mark.win{background:var(--accent);color:var(--accent-fg)}
 .mark.lose{background:var(--bad);color:var(--bad-fg)}
 .mark.wait{background:var(--line);color:var(--muted)}
-.chip.lose{background:transparent;border-color:var(--bad);color:var(--fg)}
-.score-row{display:flex;align-items:center;gap:8px;font-size:.84rem;color:var(--muted);flex-wrap:wrap}
-.score-row input{width:56px;text-align:center;padding:6px}
 .verdict{display:flex;align-items:center;justify-content:space-between;gap:12px}
-@media (max-width:360px){.grid,.grid3{grid-template-columns:1fr}}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.stat{display:flex;flex-direction:column}
+.stat b{font-family:var(--display);font-size:1.3rem;font-variant-numeric:tabular-nums}
+.stat small{color:var(--muted)}
+.res{display:flex;flex-direction:column;gap:2px;padding:10px 0;border-bottom:1px solid var(--line)}
+.res:last-child{border-bottom:0}
+.res-row{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center}
+.res-row .r{text-align:right}
+.res-row b{font-family:var(--display);font-size:1.1rem;font-variant-numeric:tabular-nums}
+.score{font-family:var(--display);font-size:1.4rem;font-weight:700;font-variant-numeric:tabular-nums}
+ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;font-size:.92rem}
+[hidden]{display:none!important}
 @media (prefers-reduced-motion:no-preference){.bar span{transition:width .3s}}
 </style>
 </head>
 <body>
-
-<div id="intro" aria-hidden="true"><div class="balls"><span>⚽</span><span>🏀</span><span>🏒</span><span>🎾</span></div><h2>LGE Analyse foot</h2><p>Football · Basket · Hockey · Tennis</p></div>
-<div class="bgfx" id="bgfx" aria-hidden="true"></div>
 <div class="wrap">
-  <header>
-    <h1>LGE Analyse foot</h1>
-    <p class="sub">Avant-match, direct et résultats, avec un filtre de probabilité. Scores en direct : <a href="https://www.sofascore.com/football" target="_blank" rel="noopener">SofaScore</a> · <a href="https://www.livescore.com/en/football/" target="_blank" rel="noopener">LiveScore</a> · <a href="https://www.besoccer.com/" target="_blank" rel="noopener">BeSoccer</a></p>
+  <header class="head">
+    <div>
+      <h1>LGE Analyse foot</h1>
+      <p class="sub">Football (1re et 2e divisions, coupes d'Europe) et NBA. Matchs, direct et résultats se mettent à jour tout seuls. Vos 5 pronostics sont calculés chaque jour.</p>
+    </div>
+    <button type="button" id="keyBtn" aria-label="Clé API">Clé API</button>
   </header>
 
-  <p class="callout" id="stale" hidden></p>
+  <p class="callout" id="status" aria-live="polite"></p>
+  <p class="callout bad" id="err" hidden></p>
+
+  <section class="panel" id="keyPanel" hidden aria-labelledby="key-title">
+    <h2 id="key-title">Connexion aux données</h2>
+    <ol class="steps">
+      <li>Créez un compte gratuit sur <a href="https://dashboard.api-football.com/register" target="_blank" rel="noopener">dashboard.api-football.com</a>.</li>
+      <li>Copiez votre clé API depuis le tableau de bord et collez-la ci-dessous.</li>
+      <li>La page charge alors les championnats et la NBA. L'offre gratuite autorise 100 requêtes par jour : la page les gère toute seule et affiche le compteur.</li>
+    </ol>
+    <label>Clé API<input type="password" id="key" autocomplete="off" placeholder="Collez votre clé ici"></label>
+    <div class="actions">
+      <button type="button" class="primary" id="keySave">Enregistrer et charger</button>
+      <button type="button" id="keyDel">Effacer la clé</button>
+    </div>
+    <p class="note">La clé reste dans ce navigateur et n'est envoyée qu'à api-sports.io. Ne la partagez pas.</p>
+  </section>
 
   <nav class="tabs" role="tablist" aria-label="Sections">
     <button class="tab" role="tab" data-tab="pro" aria-selected="true">Pronostics du jour</button>
-    <button class="tab" role="tab" data-tab="risk" aria-selected="false">Pronostic risqué</button>
-    <button class="tab" role="tab" data-tab="exact" aria-selected="false">Score exact</button>
     <button class="tab" role="tab" data-tab="pre" aria-selected="false">Avant-match</button>
     <button class="tab" role="tab" data-tab="live" aria-selected="false">En direct</button>
     <button class="tab" role="tab" data-tab="res" aria-selected="false">Résultats</button>
-    <button class="tab" role="tab" data-tab="mine" aria-selected="false">Mes matchs</button>
   </nav>
 
   <section class="panel" id="thPanel" aria-labelledby="th-title">
     <div class="th-row">
       <h2 id="th-title">Seuil de probabilité</h2>
-      <span class="th-val" id="th-val">75 %</span>
+      <span class="th-val" id="th-val">90 %</span>
     </div>
-    <input type="range" id="th" min="50" max="95" step="1" value="75" aria-labelledby="th-title">
-    <p class="note">Un marché à 75 % se joue en général à une cote d'environ 1,33 et perd quand même environ une fois sur quatre. Aucun modèle ne garantit un résultat sur un match précis. « éq. » indique la cote équitable : en dessous, le pari n'est pas rentable.</p>
+    <input type="range" id="th" min="50" max="95" step="1" value="90" aria-labelledby="th-title">
+    <p class="note">Un marché à 90 % se joue en général à une cote d'environ 1,10 et perd quand même environ une fois sur dix. Aucun modèle ne garantit 90 % sur un match précis. « éq. » indique la cote équitable.</p>
   </section>
 
-  <!-- PRONOSTICS DU JOUR -->
+  <div class="filters" id="days" role="group" aria-label="Jour"></div>
+  <div class="filters" id="grp" role="group" aria-label="Compétitions"></div>
+
   <section id="p-pro" class="cards" aria-label="Pronostics du jour">
-    <div class="filters" id="pro-days" role="group" aria-label="Jour"></div>
     <div class="panel">
       <h2 id="pro-title">Mes pronostics du jour</h2>
-      <p class="note">Les 5 matchs du jour dont le marché le plus probable a la meilleure probabilité, du plus sûr au moins sûr. En vert, ceux qui atteignent votre seuil.</p>
+      <p class="note">Les 5 matchs du jour dont le marché le plus probable a la meilleure probabilité, parmi les compétitions choisies. Calculés à partir des résultats jusqu'à la veille, donc ils ne changent pas dans la journée. Chaque coche ou croix se met à jour avec le score final.</p>
     </div>
     <div class="cards" id="pro-cards"></div>
-    <div class="panel" id="pro-combo"></div>
+    <div class="panel" id="pro-combo" hidden></div>
   </section>
 
-  <!-- SCORE EXACT -->
-  <section id="p-exact" class="cards" aria-label="Score exact" hidden>
-    <div class="filters" id="ex-days" role="group" aria-label="Jour"></div>
-    <div class="panel">
-      <h2 id="ex-title">Score exact</h2>
-      <p class="note">3 matchs par jour, avec le score le plus probable selon le modèle. Un score exact reste rare : même le meilleur score d'un match ne tombe qu'environ une fois sur sept à huit, et les 3 ensemble encore bien moins.</p>
-    </div>
-    <div class="cards" id="ex-cards"></div>
-    <div class="panel" id="ex-combo"></div>
-  </section>
-
-  <!-- PRONOSTIC RISQUE -->
-  <section id="p-risk" class="cards" aria-label="Pronostic risqué" hidden>
-    <div class="filters" id="risk-days" role="group" aria-label="Jour"></div>
-    <div class="panel">
-      <h2 id="risk-title">Pronostic risqué</h2>
-      <p class="note">5 matchs choisis parmi le football, la NBA et la NHL du jour pour que la cote combinée équitable approche 3,5. Cela revient à environ 29 % de chances que tout passe : le coupon perd en moyenne 7 fois sur 10. Les cotes réelles des bookmakers sont un peu plus basses (leur marge).</p>
-    </div>
-    <div class="cards" id="risk-cards"></div>
-    <div class="panel" id="risk-combo"></div>
-  </section>
-
-  <!-- AVANT-MATCH -->
-  <section id="p-pre" class="cards" aria-label="Avant-match">
-    <div class="filters" id="pre-sport" role="group" aria-label="Sport"></div>
-    <div class="cards" id="pre-foot">
-    <div class="filters" id="pre-days" role="group" aria-label="Jour"></div>
-    <div class="filters" id="pre-lg" role="group" aria-label="Championnat"></div>
-    <p class="summary" id="pre-sum"></p>
+  <section id="p-pre" class="cards" aria-label="Avant-match" hidden>
+    <p class="note" id="pre-sum"></p>
     <div class="cards" id="pre-cards"></div>
-    <p class="note">Probabilités 1/X/2 fournies par un fournisseur de données sportives (matchs à venir : relevé du 24 nov. 2026, 06:25 GMT ; matchs déjà joués : relevés du 21 au 23 nov.). Les marchés de buts sont estimés par un modèle de Poisson ajusté sur ces probabilités. Heures en GMT. Ligue des champions : probabilités fournies par le même fournisseur (relevé du 24 nov. 2026, 06:25 GMT). Ligue Europa et Ligue Conférence : ma source ne donne pas de probabilités pour ces compétitions, je ne les ai donc pas ajoutées plutôt que d'inventer des chiffres. SofaScore n'offre pas d'accès public à ses données : la page ne s'y connecte pas, le lien ci-dessus l'ouvre dans un nouvel onglet.</p>
-    </div>
-    <div class="cards" id="pre-us" hidden>
-      <div class="filters" id="us-days" role="group" aria-label="Jour"></div>
-      <p class="summary" id="us-sum"></p>
-      <div class="cards" id="us-cards"></div>
-      <p class="note" id="us-note">Probabilités de victoire fournies par un fournisseur de données sportives, relevé du 24 nov. 2026, 06:25 GMT. Pas de match nul : deux issues seulement. Heures en GMT.</p>
-    </div>
-    <div class="cards" id="pre-tennis" hidden>
-      <p class="summary" id="ten-sum"></p>
-      <div class="cards" id="ten-cards"></div>
-      <p class="note">Tennis : la source ne fournit ni classement ni probabilités. Pour un match en cours, le pronostic est calculé d'après le score actuel (meilleur des 3 sets, joueurs supposés de même niveau) : c'est une estimation grossière. Pour un match à venir, je ne donne pas de pronostic plutôt que d'en inventer un. Vous voyez les matchs du jour avec leurs scores (relevé du 24 nov. 2026, 06:25 GMT), surtout des tournois Challenger ATP et la Billie Jean King Cup. Les matchs « en cours » le sont au moment du relevé.</p>
-    </div>
   </section>
 
-  <!-- DIRECT -->
   <section id="p-live" class="cards" aria-label="En direct" hidden>
     <div class="panel">
       <h2>Matchs en cours</h2>
       <p class="callout" id="live-status"></p>
-      <div class="chips" id="live-list" role="group" aria-label="Matchs en cours"></div>
-      <p class="note">Cette page ne reçoit pas les scores en direct : elle affiche le dernier relevé. Pour suivre un match en temps réel, saisissez la minute et le score affichés sur SofaScore, LiveScore ou BeSoccer : les probabilités restantes sont recalculées sur-le-champ.</p>
+      <p class="note">Football : les probabilités sont recalculées avec le score et la minute. NBA : le score en direct est affiché, avec les probabilités d'avant-match. Cartons rouges et blessures ne sont pas pris en compte.</p>
     </div>
-    <div class="panel">
-      <h2>Suivre un match</h2>
-      <label>Match<select id="live-sel"></select></label>
-      <div class="grid3">
-        <label>Minute<input type="text" inputmode="numeric" id="live-min" value="60"></label>
-        <label>Buts domicile<input type="text" inputmode="numeric" id="live-gh" value="1"></label>
-        <label>Buts extérieur<input type="text" inputmode="numeric" id="live-ga" value="0"></label>
-      </div>
-      <p class="note">Pré-rempli avec le dernier relevé (06:25 GMT) : le match en cours, ou à défaut le prochain match à 0-0. La minute d'un match en cours est estimée à partir du coup d'envoi : corrigez-la avec la valeur réelle.</p>
-    </div>
-    <div id="live-out"></div>
+    <div class="cards" id="live-cards"></div>
   </section>
 
-  <!-- RESULTATS -->
   <section id="p-res" class="cards" aria-label="Résultats" hidden>
-    <div class="filters" id="res-days" role="group" aria-label="Jour"></div>
-    <div class="filters" id="res-lg" role="group" aria-label="Championnat"></div>
     <div class="panel" id="res-stats"></div>
     <div class="panel" id="res-list"></div>
-    <p class="note">Résultats finaux des cinq grands championnats européens, relevé du 24 nov. 2026, 06:25 GMT. Les matchs de demain s'ajouteront à la prochaine mise à jour.</p>
   </section>
 
-  <!-- MES MATCHS -->
-  <section id="p-mine" class="cards" aria-label="Mes matchs" hidden>
-    <p class="summary" id="summary"></p>
-    <div class="cards" id="cards"></div>
-    <details class="panel" id="formBox">
-      <summary id="formTitle" style="cursor:pointer;font-family:var(--display);font-weight:700;font-size:1.1rem">Ajouter un match</summary>
-      <form id="form" autocomplete="off">
-        <div class="grid">
-          <label>Compétition<input type="text" id="f-league" placeholder="Championnat"></label>
-          <label>Date et heure<input type="text" id="f-date" placeholder="Sam. 21:00"></label>
-          <label>Équipe à domicile<input type="text" id="f-home" placeholder="Nom" required></label>
-          <label>Équipe à l'extérieur<input type="text" id="f-away" placeholder="Nom" required></label>
-          <p class="sect full">Moyennes de buts par match</p>
-          <label>Domicile : buts marqués<input type="text" inputmode="decimal" id="f-hf" value="1,5"></label>
-          <label>Domicile : buts encaissés<input type="text" inputmode="decimal" id="f-hc" value="1,2"></label>
-          <label>Extérieur : buts marqués<input type="text" inputmode="decimal" id="f-af" value="1,2"></label>
-          <label>Extérieur : buts encaissés<input type="text" inputmode="decimal" id="f-ac" value="1,5"></label>
-          <label>Matchs joués par équipe<input type="text" inputmode="numeric" id="f-n" value="10"></label>
-          <span></span>
-          <label>Moyenne de buts du championnat, domicile<input type="text" inputmode="decimal" id="f-lgh" value="1,5"></label>
-          <label>Moyenne de buts du championnat, extérieur<input type="text" inputmode="decimal" id="f-lga" value="1,2"></label>
-          <p class="sect full">Cotes du bookmaker (facultatif)</p>
-          <label>Victoire domicile (1)<input type="text" inputmode="decimal" id="f-o1" placeholder="2,10"></label>
-          <label>Nul (X)<input type="text" inputmode="decimal" id="f-ox" placeholder="3,20"></label>
-          <label>Victoire extérieur (2)<input type="text" inputmode="decimal" id="f-o2" placeholder="3,40"></label>
-        </div>
-        <div class="actions" style="margin-top:14px">
-          <button type="submit" class="primary" id="saveBtn">Analyser ce match</button>
-          <button type="button" id="cancelBtn" hidden>Annuler</button>
-        </div>
-      </form>
-      <p class="note">Les cotes se recopient à la main depuis votre site de paris. L'application ne place aucun pari.</p>
-    </details>
-    <p class="note">Matchs marqués « Exemple » : équipes et chiffres inventés. <button type="button" id="resetBtn" style="margin-left:4px">Remettre les exemples</button></p>
-  </section>
+  <p class="note">Estimations statistiques, sans cotes de bookmaker et sans garantie. Football : modèle de Poisson lissé. NBA : écart de points attendu. Données : API-Sports.</p>
 </div>
 
 <script>
-/*MODEL*/
+(function(){
+'use strict';
+/* ---------- Modèles ---------- */
 function poisson(l,max){var a=[Math.exp(-l)];for(var i=1;i<=max;i++)a.push(a[i-1]*l/i);return a;}
 function fmtLine(x){return String(x).replace('.',',');}
 function ovF(q){return function(h,a){return h+a>=q+1;};}
 function unF(q){return function(h,a){return h+a<=q;};}
-function finalModel(lh,la,gh,ga,ov,live){
+function finalModel(lh,la,gh,ga,live){
   var N=10,ph=poisson(lh,N),pa=poisson(la,N);
   var p1=0,px=0,p2=0,bt=0,T={},best=0,bs=gh+'-'+ga;
   for(var i=0;i<=N;i++)for(var j=0;j<=N;j++){
@@ -314,7 +195,6 @@ function finalModel(lh,la,gh,ga,ov,live){
     if(p>best){best=p;bs=fh+'-'+fa;}
   }
   var s=p1+px+p2;p1/=s;px/=s;p2/=s;bt/=s;for(var k in T)T[k]/=s;
-  if(ov){var so=ov[0]+ov[1]+ov[2];p1=ov[0]/so;px=ov[1]/so;p2=ov[2]/so;}
   function ge(k){var z=0;for(var t in T)if(+t>=k)z+=T[t];return z;}
   var cur=gh+ga,M=[
     {l:'Victoire domicile (1)',p:p1,w:function(h,a){return h>a;}},{l:'Match nul (X)',p:px,w:function(h,a){return h===a;}},{l:'Victoire extérieur (2)',p:p2,w:function(h,a){return h<a;}},
@@ -330,297 +210,297 @@ function finalModel(lh,la,gh,ga,ov,live){
   M=M.filter(function(m){return m.p<0.9995;}).sort(function(a,b){return b.p-a.p;});
   return {lh:lh,la:la,p1:p1,px:px,p2:p2,markets:M,score:bs};
 }
-var GRID=(function(){var g=[];for(var l=0.15;l<=4.6;l+=0.05)g.push({l:l,a:poisson(l,8)});return g;})();
-function fit(p1,px,p2){
-  var s=p1+px+p2;p1/=s;px/=s;p2/=s;var best=1e9,bh=1.4,ba=1.1;
-  for(var a=0;a<GRID.length;a++)for(var b=0;b<GRID.length;b++){
-    var H=GRID[a].a,A=GRID[b].a,q1=0,qx=0,q2=0;
-    for(var i=0;i<=8;i++)for(var j=0;j<=8;j++){var p=H[i]*A[j];if(i>j)q1+=p;else if(i===j)qx+=p;else q2+=p;}
-    var d=(q1-p1)*(q1-p1)+(qx-px)*(qx-px)+(q2-p2)*(q2-p2)+0.0001*Math.pow(GRID[a].l+GRID[b].l-2.7,2);
-    if(d<best){best=d;bh=GRID[a].l;ba=GRID[b].l;}
-  }
-  return [bh,ba];
-}
-function analyse(m){
-  var K=6,n=Math.max(1,m.n);
-  function sh(x,lg){return (n*x+K*lg)/(n+K);}
-  var hS=sh(m.hf,m.lgH),hC=sh(m.hc,m.lgA),aS=sh(m.af,m.lgA),aC=sh(m.ac,m.lgH);
-  return finalModel(hS*aC/m.lgH,aS*hC/m.lgA,0,0,null);
-}
-function valueRows(m,r){
-  var o=[m.o1,m.ox,m.o2];
-  if(!o.every(function(x){return x&&x>1;}))return null;
-  var inv=o.map(function(x){return 1/x;}),s=inv[0]+inv[1]+inv[2];
-  var pm=[r.p1,r.px,r.p2],nm=['Domicile (1)','Nul (X)','Extérieur (2)'];
-  return nm.map(function(n,i){var fair=inv[i]/s;return {n:n,odd:o[i],model:pm[i],fair:fair,edge:pm[i]-fair};});
-}
-/*ENDMODEL*/
-
-/* Données relevées le 21 nov. 2026, 03:55 GMT : [championnat, domicile, extérieur, coup d'envoi GMT, %1, %X, %2] */
-var LG={pl:'Premier League',ll:'La Liga',bl:'Bundesliga',sa:'Serie A',l1:'Ligue 1',cl:'Ligue des champions'};
-var UP=[
-['pl','Manchester City','Fulham','2026-11-21T12:30',69.7,16.9,13.4],['pl','Aston Villa','Sunderland','2026-11-21T15:00',54.5,24.2,21.3],
-['pl','Bournemouth','Nottingham Forest','2026-11-21T15:00',49.3,26.6,24.1],['pl','Chelsea','Leeds United','2026-11-21T15:00',48.5,26.3,25.2],
-['pl','Coventry City','Crystal Palace','2026-11-21T15:00',37.7,27.5,34.8],['pl','Tottenham','Ipswich Town','2026-11-21T15:00',62.4,20.8,16.8],
-['pl','Newcastle United','Arsenal','2026-11-21T17:30',16.1,21.4,62.5],['pl','Hull City','Brighton','2026-11-22T14:00',15,20.5,64.5],
-['pl','Liverpool','Manchester United','2026-11-22T16:30',56.3,22.4,21.3],['pl','Brentford','Everton','2026-11-23T20:00',41.1,27.5,31.4],
-['ll','Alavés','Deportivo La Corogne','2026-11-21T13:00',41,28.9,30.1],['ll','Rayo Vallecano','Valence','2026-11-21T15:15',50.2,26.6,23.2],
-['ll','Séville','Betis Séville','2026-11-21T17:30',31.8,28.4,39.8],['ll','Real Madrid','Celta Vigo','2026-11-21T20:00',83.3,10.9,5.8],
-['ll','FC Barcelone','Villarreal','2026-11-22T13:00',82.2,10.2,7.6],['ll','Racing Santander','Real Sociedad','2026-11-22T15:15',29.9,23.4,46.7],
-['ll','Osasuna','Málaga','2026-11-22T17:30',51.5,26.5,22],['ll','Getafe','Atlético Madrid','2026-11-22T20:00',13.9,23.3,62.8],
-['ll','Levante','Elche','2026-11-23T20:00',44,26.3,29.7],
-['bl','Bayer Leverkusen','Paderborn','2026-11-21T14:30',76.3,13.8,9.9],['bl','Eintracht Francfort','Hoffenheim','2026-11-21T14:30',39.3,23.7,37],
-['bl','Union Berlin','RB Leipzig','2026-11-21T14:30',16.2,18.9,64.9],['bl','Gladbach','Borussia Dortmund','2026-11-21T14:30',18.5,20.9,60.6],
-['bl','Elversberg','Fribourg','2026-11-21T14:30',27.2,25,47.8],['bl','Schalke 04','VfB Stuttgart','2026-11-21T17:30',23.9,23.2,52.9],
-['bl','Augsbourg','Mayence','2026-11-22T14:30',35.2,24.7,40.1],['bl','Werder Brême','Hambourg','2026-11-22T16:30',61.8,21,17.2],
-['sa','Côme','Cagliari','2026-11-21T14:00',74.6,15.4,10],['sa','Lazio','Lecce','2026-11-21T14:00',66.6,19.2,14.2],
-['sa','Parme','AS Roma','2026-11-21T17:00',9,14.5,76.5],['sa','Naples','Torino','2026-11-21T19:45',63.7,20.6,15.7],
-['sa','Juventus','Venise','2026-11-22T11:30',67.9,18.6,13.5],['sa','Bologne','Udinese','2026-11-22T14:00',53.8,25.8,20.4],
-['sa','Sassuolo','Genoa','2026-11-22T14:00',35.4,28.9,35.7],['sa','AC Milan','Frosinone','2026-11-22T17:00',59.7,20.9,19.4],
-['sa','Atalanta','Inter Milan','2026-11-22T19:45',17.4,19.7,62.9],['sa','Monza','Fiorentina','2026-11-23T19:45',26.4,24.8,48.8],
-['l1','Nice','Paris Saint-Germain','2026-11-21T16:15',16.2,18.1,65.7],['l1','Lens','Toulouse','2026-11-21T19:45',45.9,25.3,28.8],
-['l1','Lille','Lyon','2026-11-21T19:45',42,28.6,29.4],['l1','Monaco','Auxerre','2026-11-21T19:45',67.7,18.2,14.1],
-['l1','Strasbourg','Brest','2026-11-21T19:45',42.3,25.8,31.9],['l1','Paris FC','Angers','2026-11-22T14:00',73.9,15.4,10.7],
-['l1','Lorient','Rennes','2026-11-22T16:15',31.9,29.1,39],['l1','Marseille','Le Mans','2026-11-22T19:45',65.7,19.2,15.1],
-['cl','Bodø/Glimt','LASK Linz','2026-11-24T17:45',65.4,17.6,17],['cl','Galatasaray','Aston Villa','2026-11-24T17:45',32,25.3,42.7],
-['cl','Arsenal','Borussia Dortmund','2026-11-24T20:00',65.6,20.3,14.1],['cl','Côme','AEK Athènes','2026-11-24T20:00',77.6,13.3,9.1],
-['cl','Feyenoord','FC Porto','2026-11-24T20:00',30.8,25.9,43.3],['cl','Manchester City','Naples','2026-11-24T20:00',74.6,14.5,10.9],
-['cl','RB Leipzig','Lens','2026-11-24T20:00',70.4,16.1,13.5],['cl','Real Madrid','PSV Eindhoven','2026-11-24T20:00',86.4,8.2,5.4],
-['cl','Slovan Bratislava','Betis Séville','2026-11-24T20:00',9.3,13.8,76.9],['cl','Sabah','FC Barcelone','2026-11-25T17:45',3.9,6.5,89.6]
-];
-var RES=[
-['pl','Everton','Coventry City','2026-11-06',3,1],['pl','Leeds United','Tottenham','2026-11-07',1,0],['pl','Arsenal','Hull City','2026-11-07',1,0],
-['pl','Fulham','Newcastle United','2026-11-07',1,1],['pl','Nottingham Forest','Manchester City','2026-11-07',3,1],['pl','Brighton','Brentford','2026-11-08',2,0],
-['pl','Crystal Palace','Liverpool','2026-11-08',1,3],['pl','Ipswich Town','Bournemouth','2026-11-08',1,2],['pl','Sunderland','Chelsea','2026-11-08',1,0],
-['pl','Manchester United','Aston Villa','2026-11-08',4,4],
-['ll','Málaga','Racing Santander','2026-11-07',1,2],['ll','Espanyol','Deportivo La Corogne','2026-11-07',0,0],['ll','Osasuna','Athletic Bilbao','2026-11-07',1,1],
-['ll','Valence','Real Madrid','2026-11-07',0,3],['ll','Elche','Betis Séville','2026-11-08',0,2],['ll','Real Sociedad','Rayo Vallecano','2026-11-08',1,0],
-['ll','Celta Vigo','Levante','2026-11-08',0,0],['ll','Villarreal','Getafe','2026-11-08',2,0],['ll','Atlético Madrid','FC Barcelone','2026-11-08',1,2],
-['ll','Athletic Bilbao','Espanyol','2026-11-20',0,1],
-['bl','Hambourg','Gladbach','2026-11-06',3,1],['bl','Borussia Dortmund','Elversberg','2026-11-07',2,1],['bl','RB Leipzig','Augsbourg','2026-11-07',5,2],
-['bl','Mayence','Bayern Munich','2026-11-07',1,2],['bl','Paderborn','Eintracht Francfort','2026-11-07',2,2],['bl','VfB Stuttgart','Werder Brême','2026-11-07',1,0],
-['bl','Cologne','Bayer Leverkusen','2026-11-08',1,2],['bl','Fribourg','Union Berlin','2026-11-08',2,0],['bl','Hoffenheim','Schalke 04','2026-11-08',2,1],
-['bl','Bayern Munich','Cologne','2026-11-20',1,1],
-['sa','Venise','Udinese','2026-11-06',2,1],['sa','Cagliari','Frosinone','2026-11-07',1,0],['sa','Torino','Lecce','2026-11-07',1,1],
-['sa','Parme','Bologne','2026-11-07',1,2],['sa','AS Roma','Sassuolo','2026-11-07',3,0],['sa','Naples','Lazio','2026-11-08',1,1],
-['sa','Genoa','AC Milan','2026-11-08',1,2],['sa','Monza','Atalanta','2026-11-08',0,1],['sa','Inter Milan','Côme','2026-11-08',2,0],
-['sa','Fiorentina','Juventus','2026-11-08',2,2],
-['l1','Toulouse','Strasbourg','2026-11-06',3,1],['l1','Auxerre','Paris FC','2026-11-07',0,1],['l1','Paris Saint-Germain','Troyes','2026-11-07',1,0],
-['l1','Rennes','Lille','2026-11-08',1,2],['l1','Angers','Nice','2026-11-08',0,2],['l1','Brest','Lyon','2026-11-08',2,0],
-['l1','Le Havre','Lorient','2026-11-08',0,2],['l1','Le Mans','Monaco','2026-11-08',1,1],['l1','Lens','Marseille','2026-11-08',1,2],
-['l1','Troyes','Le Havre','2026-11-20',3,1],
-['pl','Manchester City','Fulham','2026-11-21',1,1],['pl','Aston Villa','Sunderland','2026-11-21',0,0],['pl','Bournemouth','Nottingham Forest','2026-11-21',2,0],
-['pl','Chelsea','Leeds United','2026-11-21',1,4],['pl','Coventry City','Crystal Palace','2026-11-21',3,2],['pl','Tottenham','Ipswich Town','2026-11-21',2,0],
-['ll','Alavés','Deportivo La Corogne','2026-11-21',3,1],['ll','Rayo Vallecano','Valence','2026-11-21',0,1],
-['bl','Bayer Leverkusen','Paderborn','2026-11-21',4,0],['bl','Eintracht Francfort','Hoffenheim','2026-11-21',1,0],['bl','Union Berlin','RB Leipzig','2026-11-21',1,5],
-['bl','Gladbach','Borussia Dortmund','2026-11-21',0,1],['bl','Elversberg','Fribourg','2026-11-21',0,1],
-['sa','Côme','Cagliari','2026-11-21',2,0],['sa','Lazio','Lecce','2026-11-21',3,0],
-['l1','Nice','Paris Saint-Germain','2026-11-21',2,3],
-['pl','Newcastle United','Arsenal','2026-11-21',2,2],['ll','Séville','Betis Séville','2026-11-21',1,1],
-['bl','Schalke 04','VfB Stuttgart','2026-11-21',0,0],['sa','Parme','AS Roma','2026-11-21',1,5],
-['ll','Real Madrid','Celta Vigo','2026-11-21',2,1],['sa','Naples','Torino','2026-11-21',1,0],
-['l1','Lens','Toulouse','2026-11-21',1,1],['l1','Lille','Lyon','2026-11-21',0,1],['l1','Monaco','Auxerre','2026-11-21',1,1],['l1','Strasbourg','Brest','2026-11-21',0,1],
-['pl','Hull City','Brighton','2026-11-22',2,0],
-['pl','Liverpool','Manchester United','2026-11-22',4,0],
-['ll','FC Barcelone','Villarreal','2026-11-22',3,2],
-['ll','Racing Santander','Real Sociedad','2026-11-22',3,2],
-['ll','Osasuna','Málaga','2026-11-22',1,0],
-['ll','Getafe','Atlético Madrid','2026-11-22',0,3],
-['bl','Augsbourg','Mayence','2026-11-22',3,1],
-['bl','Werder Brême','Hambourg','2026-11-22',4,0],
-['sa','Juventus','Venise','2026-11-22',4,0],
-['sa','Bologne','Udinese','2026-11-22',1,1],
-['sa','Sassuolo','Genoa','2026-11-22',0,2],
-['sa','AC Milan','Frosinone','2026-11-22',5,1],
-['sa','Atalanta','Inter Milan','2026-11-22',4,4],
-['l1','Paris FC','Angers','2026-11-22',4,0],
-['l1','Lorient','Rennes','2026-11-22',1,1],
-['l1','Marseille','Le Mans','2026-11-22',2,3],
-['pl','Brentford','Everton','2026-11-23',4,0],
-['ll','Levante','Elche','2026-11-23',1,1],
-['sa','Monza','Fiorentina','2026-11-23',3,0]
-];
-/* Matchs en cours au relevé du 24 nov. 2026, 06:25 GMT : [domicile, extérieur, buts dom., buts ext., coup d'envoi GMT]. Aucun match en cours à cette heure. */
-var SNAP='06:25';
-var SNAPDAY='2026-11-24';
-var LIVE=[];
-function wallMin(a,b){var x=a.split(':'),y=b.split(':');return (+x[0]*60+ +x[1])-(+y[0]*60+ +y[1]);}
-function estMin(start){var w=wallMin(SNAP,start);if(w<=47)return Math.max(1,w);if(w<=62)return 45;return Math.min(90,w-15);}
-
-var DAYS=['dim.','lun.','mar.','mer.','jeu.','ven.','sam.'],MON=['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];
-function dayLabel(d){var x=new Date(d+'T12:00:00Z');return DAYS[x.getUTCDay()]+' '+x.getUTCDate()+' '+MON[x.getUTCMonth()];}
-function uniq(a){return a.filter(function(v,i){return a.indexOf(v)===i;});}
-var PRE=UP.map(function(u,i){
-  var f=fit(u[4],u[5],u[6]);
-  return {i:i,lg:u[0],home:u[1],away:u[2],day:u[3].slice(0,10),time:u[3].slice(11),lh:f[0],la:f[1],r:finalModel(f[0],f[1],0,0,[u[4],u[5],u[6]])};
-});
-var PRE_DAYS=uniq(PRE.map(function(x){return x.day;})).sort();
-var RES_DAYS=uniq(RES.map(function(x){return x[3];})).sort().reverse();
-function pickDay(){
-  var t=new Date().toISOString().slice(0,10);
-  if(PRE_DAYS.indexOf(t)>=0)return t;
-  var later=PRE_DAYS.filter(function(d){return d>=t;})[0];
-  return later||PRE_DAYS[PRE_DAYS.length-1];
+function erf(x){var s=x<0?-1:1;x=Math.abs(x);var t=1/(1+0.3275911*x);
+  var y=1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-0.284496736)*t+0.254829592)*t*Math.exp(-x*x);return s*y;}
+function phi(z){return 0.5*(1+erf(z/Math.SQRT2));}
+function basketModel(expH,expA){
+  var mu=expH-expA,pH=phi(mu/12.5),T=expH+expA,L0=Math.floor(T)+0.5;
+  var M=[
+    {l:'Victoire domicile',p:pH,w:function(h,a){return h>a;}},
+    {l:'Victoire extérieur',p:1-pH,w:function(h,a){return h<a;}}
+  ];
+  [-8,-4,0,4,8].forEach(function(d){
+    var line=L0+d,po=1-phi((line-T)/18);
+    M.push({l:'Plus de '+fmtLine(line)+' points',p:po,w:(function(L){return function(h,a){return h+a>L;};})(line)});
+    M.push({l:'Moins de '+fmtLine(line)+' points',p:1-po,w:(function(L){return function(h,a){return h+a<L;};})(line)});
+  });
+  M.sort(function(a,b){return b.p-a.p;});
+  return {lh:expH,la:expA,p1:pH,px:0,p2:1-pH,markets:M,two:true};
 }
 
+/* ---------- Compétitions ---------- */
+var LGS={
+  39:{n:'Premier League',g:'elite'},140:{n:'La Liga',g:'elite'},78:{n:'Bundesliga',g:'elite'},135:{n:'Serie A',g:'elite'},61:{n:'Ligue 1',g:'elite'},
+  40:{n:'Championship',g:'second'},141:{n:'Liga 2 (Segunda)',g:'second'},79:{n:'Bundesliga 2',g:'second'},136:{n:'Serie B',g:'second'},62:{n:'Ligue 2',g:'second'},
+  2:{n:'Ligue des champions',g:'europe'},3:{n:'Ligue Europa',g:'europe'},848:{n:'Ligue Conférence',g:'europe'},
+  NBA:{n:'NBA',g:'nba'}
+};
+var FOOT=[39,140,78,135,61,40,141,79,136,62,2,3,848];
+var GROUPS=[['all','Tous'],['elite','1re division'],['second','2e division'],['europe','Coupes d\'Europe'],['nba','NBA']];
+var FB='https://v3.football.api-sports.io/',NB='https://v2.nba.api-sports.io/';
+var K_KEY='lge-v2-key',K_CACHE='lge-v2-cache',K_TH='lge-v2-th',K_USE='lge-v2-usage',DAILY=100;
+var TZ=(function(){try{return Intl.DateTimeFormat().resolvedOptions().timeZone||'UTC';}catch(e){return 'UTC';}})();
 
-var SPORT={nba:'NBA · Basket',nhl:'NHL · Hockey sur glace'};
-var US=[
-['nba','Atlanta Hawks','Detroit Pistons','2026-11-22T20:30',.452,.548],
-['nhl','New York Rangers','Carolina Hurricanes','2026-11-22T17:30',.42,.58],
-['nhl','Tampa Bay Lightning','Buffalo Sabres','2026-11-22T22:00',.639,.361],
-['nba','Miami Heat','Oklahoma City Thunder','2026-11-22T23:00',0.632,0.368],
-['nba','Chicago Bulls','Denver Nuggets','2026-11-23T00:00',0.209,0.791],
-['nba','Utah Jazz','Dallas Mavericks','2026-11-23T00:00',0.453,0.547],
-['nba','Washington Wizards','Orlando Magic','2026-11-23T00:00',0.367,0.633],
-['nba','New York Knicks','Indiana Pacers','2026-11-23T01:00',0.724,0.276],
-['nba','Golden State Warriors','Boston Celtics','2026-11-23T01:30',0.26,0.74],
-['nhl','Dallas Stars','Pittsburgh Penguins','2026-11-23T00:00',0.676,0.324],
-['nhl','St. Louis Blues','Edmonton Oilers','2026-11-23T00:00',0.521,0.479],
-['nhl','Vancouver Canucks','Chicago Blackhawks','2026-11-23T01:00',0.494,0.506],
-['nba','Charlotte Hornets','Memphis Grizzlies','2026-11-24T00:00',0.427,0.573],
-['nba','Philadelphia 76ers','Portland Trail Blazers','2026-11-24T00:00',0.517,0.483],
-['nba','Toronto Raptors','Milwaukee Bucks','2026-11-24T00:30',0.798,0.202],
-['nba','Indiana Pacers','Oklahoma City Thunder','2026-11-24T00:30',0.377,0.623],
-['nba','Minnesota Timberwolves','Brooklyn Nets','2026-11-24T00:30',0.819,0.181],
-['nba','New Orleans Pelicans','Phoenix Suns','2026-11-24T01:00',0.421,0.579],
-['nba','Chicago Bulls','Cleveland Cavaliers','2026-11-24T01:00',0.245,0.755],
-['nba','Houston Rockets','LA Clippers','2026-11-24T01:30',0.846,0.154],
-['nba','Sacramento Kings','San Antonio Spurs','2026-11-24T03:00',0.163,0.837],
-['nba','Los Angeles Lakers','Utah Jazz','2026-11-24T03:00',0.868,0.132],
-['nhl','New Jersey Devils','Columbus Blue Jackets','2026-11-24T00:00',0.639,0.361],
-['nhl','Winnipeg Jets','Utah Mammoth','2026-11-24T00:30',0.501,0.499],
-['nhl','Montreal Canadiens','Los Angeles Kings','2026-11-24T00:30',0.578,0.422],
-['nhl','New York Islanders','Toronto Maple Leafs','2026-11-24T00:30',0.584,0.416],
-['nhl','Ottawa Senators','Calgary Flames','2026-11-24T00:30',0.688,0.312],
-['nhl','Seattle Kraken','Anaheim Ducks','2026-11-24T02:40',0.522,0.478],
-['nhl','San Jose Sharks','Minnesota Wild','2026-11-24T03:00',0.384,0.616],
-['nba','Orlando Magic','Detroit Pistons','2026-11-25T00:00',0.466,0.534],
-['nba','Washington Wizards','Boston Celtics','2026-11-25T01:00',0.197,0.803],
-['nba','Denver Nuggets','Dallas Mavericks','2026-11-25T03:00',0.744,0.256],
-['nba','Philadelphia 76ers','Miami Heat','2026-11-25T22:00',0.592,0.408],
-['nba','New York Knicks','Cleveland Cavaliers','2026-11-26T00:30',0.665,0.335],
-['nba','Oklahoma City Thunder','Minnesota Timberwolves','2026-11-26T00:30',0.707,0.293],
-['nba','Houston Rockets','Phoenix Suns','2026-11-26T01:30',0.773,0.227],
-['nhl','Edmonton Oilers','Vegas Golden Knights','2026-11-25T01:00',0.492,0.508]
-];
-var USRES=[
-['nba','Atlanta Hawks','Charlotte Hornets','2026-11-21',111,97],['nba','Detroit Pistons','Toronto Raptors','2026-11-21',102,105],['nba','Brooklyn Nets','Orlando Magic','2026-11-21',111,113],
-['nba','Cleveland Cavaliers','Indiana Pacers','2026-11-21',128,119],['nba','Chicago Bulls','Washington Wizards','2026-11-21',94,98],['nba','Oklahoma City Thunder','New Orleans Pelicans','2026-11-21',126,120],
-['nba','Utah Jazz','Phoenix Suns','2026-11-21',101,111],['nba','Los Angeles Lakers','Sacramento Kings','2026-11-21',106,104],['nba','Denver Nuggets','Houston Rockets','2026-11-21',133,124],
-['nba','Philadelphia 76ers','Milwaukee Bucks','2026-11-21',132,129],
-['nba','New York Knicks','Portland Trail Blazers','2026-11-22',97,96],['nba','Minnesota Timberwolves','Memphis Grizzlies','2026-11-22',104,95],['nba','San Antonio Spurs','New Orleans Pelicans','2026-11-22',114,91],
-['nba','Dallas Mavericks','LA Clippers','2026-11-22',110,100],['nba','Sacramento Kings','Boston Celtics','2026-11-22',97,96],
-['nhl','Carolina Hurricanes','Edmonton Oilers','2026-11-21',7,4],['nhl','Calgary Flames','Chicago Blackhawks','2026-11-21',3,4],['nhl','Nashville Predators','Pittsburgh Penguins','2026-11-21',4,3],['nhl','Florida Panthers','Buffalo Sabres','2026-11-21',4,3],
-['nhl','Detroit Red Wings','New York Islanders','2026-11-22',2,3],['nhl','Toronto Maple Leafs','Columbus Blue Jackets','2026-11-22',3,4],['nhl','Boston Bruins','Washington Capitals','2026-11-22',7,5],
-['nhl','Montreal Canadiens','Philadelphia Flyers','2026-11-22',3,4],['nhl','Winnipeg Jets','Vegas Golden Knights','2026-11-22',4,5],['nhl','Ottawa Senators','Los Angeles Kings','2026-11-22',4,2],
-['nhl','St. Louis Blues','New Jersey Devils','2026-11-22',9,6],['nhl','Utah Mammoth','Anaheim Ducks','2026-11-22',3,2],['nhl','Vancouver Canucks','Minnesota Wild','2026-11-22',4,3],['nhl','San Jose Sharks','Seattle Kraken','2026-11-22',4,3],
-['nhl','New York Rangers','Carolina Hurricanes','2026-11-22',2,5],
-['nba','Atlanta Hawks','Detroit Pistons','2026-11-22',107,97],
-['nba','Miami Heat','Oklahoma City Thunder','2026-11-22',123,113],
-['nba','Chicago Bulls','Denver Nuggets','2026-11-23',145,151],
-['nba','Utah Jazz','Dallas Mavericks','2026-11-23',114,116],
-['nba','Washington Wizards','Orlando Magic','2026-11-23',116,96],
-['nba','New York Knicks','Indiana Pacers','2026-11-23',113,106],
-['nba','Golden State Warriors','Boston Celtics','2026-11-23',88,87],
-['nhl','Tampa Bay Lightning','Buffalo Sabres','2026-11-22',2,6],
-['nhl','Dallas Stars','Pittsburgh Penguins','2026-11-23',1,0],
-['nhl','St. Louis Blues','Edmonton Oilers','2026-11-23',5,4],
-['nhl','Vancouver Canucks','Chicago Blackhawks','2026-11-23',3,6],
-['nba','Charlotte Hornets','Memphis Grizzlies','2026-11-24',111,117],
-['nba','Philadelphia 76ers','Portland Trail Blazers','2026-11-24',111,128],
-['nba','Toronto Raptors','Milwaukee Bucks','2026-11-24',111,116],
-['nba','Indiana Pacers','Oklahoma City Thunder','2026-11-24',125,120],
-['nba','Minnesota Timberwolves','Brooklyn Nets','2026-11-24',142,116],
-['nba','New Orleans Pelicans','Phoenix Suns','2026-11-24',119,123],
-['nba','Chicago Bulls','Cleveland Cavaliers','2026-11-24',122,108],
-['nba','Houston Rockets','LA Clippers','2026-11-24',116,104],
-['nba','Sacramento Kings','San Antonio Spurs','2026-11-24',107,123],
-['nba','Los Angeles Lakers','Utah Jazz','2026-11-24',109,94],
-['nhl','New Jersey Devils','Columbus Blue Jackets','2026-11-24',3,2],
-['nhl','Winnipeg Jets','Utah Mammoth','2026-11-24',4,2],
-['nhl','Montreal Canadiens','Los Angeles Kings','2026-11-24',1,2],
-['nhl','New York Islanders','Toronto Maple Leafs','2026-11-24',2,4],
-['nhl','Ottawa Senators','Calgary Flames','2026-11-24',2,1],
-['nhl','Seattle Kraken','Anaheim Ducks','2026-11-24',3,2],
-['nhl','San Jose Sharks','Minnesota Wild','2026-11-24',2,5]
-];
-var USLIVE=[];
-var USP=US.map(function(u,i){return {i:i,sp:u[0],home:u[1],away:u[2],day:u[3].slice(0,10),time:u[3].slice(11),ph:u[4],pa:u[5]};});
-function usScore(x){for(var i=0;i<USRES.length;i++){var r=USRES[i];if(r[3]===x.day&&r[1]===x.home&&r[2]===x.away)return {h:r[4],a:r[5]};}return null;}
-var US_DAYS=uniq(USP.map(function(x){return x.day;}).concat(USRES.map(function(r){return r[3];}))).sort();
-var ALL_DAYS=uniq(PRE_DAYS.concat(USP.map(function(x){return x.day;}))).sort();
-function futureDays(list){var t=new Date().toISOString().slice(0,10),f=list.filter(function(d){return d>=t;});return f.length?f:list;}
-function dayPick(list){var t=new Date().toISOString().slice(0,10);if(list.indexOf(t)>=0)return t;var l=list.filter(function(d){return d>=t;})[0];return l||list[list.length-1];}
+var state={plan:'',blocked:false,tab:'pro',th:90,day:dkey(new Date()),grp:'all',M:{},fetched:{},tried:{},errs:[],updated:null,busy:false,prog:'',key:'',ver:0};
+var timer=null,cacheS={},cacheM={};
 
-var STATS={};
-(function(){var R=[
-['Manchester City','Fulham','2026-11-21',[0, 1],[8, 6],[8, 11],[1, 3],[1, 4],[14, 4]],
-['Aston Villa','Sunderland','2026-11-21',[0, 0],[7, 2],[15, 20],[2, 2],[2, 11],[17, 5]],
-['Bournemouth','Nottingham Forest','2026-11-21',[2, 0],[6, 4],[13, 15],[1, 3],[10, 10],[17, 14]],
-['Chelsea','Leeds United','2026-11-21',[1, 1],[3, 2],[5, 15],[1, 3],[10, 8],[10, 18]],
-['Coventry City','Crystal Palace','2026-11-21',[2, 2],[4, 6],[12, 14],[1, 2],[5, 5],[10, 11]],
-['Tottenham','Ipswich Town','2026-11-21',[1, 0],[8, 6],[17, 17],[4, 1],[2, 8],[13, 8]],
-['Newcastle United','Arsenal','2026-11-21',[0, 1],[6, 3],[19, 7],[3, 3],[11, 6],[12, 13]],
-['Alavés','Deportivo La Corogne','2026-11-21',[1, 1],[8, 2],[20, 14],[4, 4],[4, 12],[19, 5]],
-['Rayo Vallecano','Valence','2026-11-21',[0, 1],[8, 5],[12, 17],[2, 1],[7, 13],[21, 11]],
-['Séville','Betis Séville','2026-11-21',[0, 0],[7, 2],[21, 15],[5, 4],[5, 10],[20, 5]],
-['Real Madrid','Celta Vigo','2026-11-21',[0, 1],[8, 3],[4, 12],[1, 2],[3, 18],[25, 8]],
-['Bayer Leverkusen','Paderborn','2026-11-21',[1, 0],[8, 3],[9, 8],[2, 0],[6, 12],[18, 6]],
-['Eintracht Francfort','Hoffenheim','2026-11-21',[1, 0],[9, 5],[10, 11],[2, 2],[11, 11],[18, 17]],
-['Union Berlin','RB Leipzig','2026-11-21',[1, 1],[4, 8],[9, 12],[2, 2],[12, 4],[8, 28]],
-['Gladbach','Borussia Dortmund','2026-11-21',[0, 0],[7, 7],[16, 7],[2, 1],[10, 6],[9, 14]],
-['Elversberg','Fribourg','2026-11-21',[0, 0],[5, 3],[12, 11],[0, 3],[4, 5],[7, 8]],
-['Schalke 04','VfB Stuttgart','2026-11-21',[0, 0],[4, 5],[9, 11],[0, 1],[6, 13],[18, 17]],
-['Côme','Cagliari','2026-11-21',[1, 0],[3, 3],[6, 12],[0, 0],[7, 7],[9, 6]],
-['Lazio','Lecce','2026-11-21',[1, 0],[9, 3],[11, 13],[1, 2],[7, 12],[7, 10]],
-['Parme','AS Roma','2026-11-21',[0, 1],[3, 8],[6, 9],[1, 0],[8, 4],[15, 19]],
-['Naples','Torino','2026-11-21',[0, 0],[8, 5],[13, 8],[2, 1],[8, 9],[22, 11]],
-['Nice','Paris Saint-Germain','2026-11-21',[1, 2],[1, 5],[11, 12],[2, 0],[11, 2],[3, 14]],
-['Lens','Toulouse','2026-11-21',[0, 1],[9, 5],[11, 15],[2, 2],[6, 9],[13, 8]],
-['Lille','Lyon','2026-11-21',[0, 1],[7, 7],[13, 12],[0, 1],[2, 8],[10, 5]],
-['Monaco','Auxerre','2026-11-21',[0, 1],[3, 0],[11, 14],[0, 1],[5, 15],[13, 6]],
-['Strasbourg','Brest','2026-11-21',[0, 1],[8, 1],[15, 15],[3, 1],[9, 7],[10, 11]],
-['Hull City','Brighton','2026-11-22',[0, 0],[3, 4],[7, 17],[2, 3],[10, 3],[9, 15]],
-['Liverpool','Manchester United','2026-11-22',[2, 0],[15, 5],[15, 7],[1, 0],[2, 8],[27, 11]],
-['FC Barcelone','Villarreal','2026-11-22',[0, 2],[10, 0],[11, 18],[2, 5],[3, 17],[24, 4]],
-['Racing Santander','Real Sociedad','2026-11-22',[2, 1],[7, 14],[10, 9],[2, 2],[18, 4],[13, 27]],
-['Osasuna','Málaga','2026-11-22',[1, 0],[4, 1],[15, 11],[3, 0],[8, 9],[10, 7]],
-['Getafe','Atlético Madrid','2026-11-22',[0, 2],[2, 7],[10, 11],[2, 2],[13, 10],[5, 17]],
-['Augsbourg','Mayence','2026-11-22',[2, 0],[6, 0],[10, 12],[1, 3],[6, 10],[16, 6]],
-['Werder Brême','Hambourg','2026-11-22',[0, 0],[1, 8],[12, 11],[3, 3],[13, 10],[16, 13]],
-['Juventus','Venise','2026-11-22',[0, 0],[5, 2],[11, 10],[0, 0],[4, 8],[12, 11]],
-['Bologne','Udinese','2026-11-22',[1, 0],[8, 4],[12, 11],[1, 2],[10, 7],[15, 9]],
-['Sassuolo','Genoa','2026-11-22',[0, 2],[5, 3],[11, 9],[1, 0],[4, 16],[26, 10]],
-['AC Milan','Frosinone','2026-11-22',[2, 1],[2, 9],[6, 17],[1, 4],[12, 4],[13, 15]],
-['Atalanta','Inter Milan','2026-11-22',[1, 2],[5, 6],[8, 9],[2, 1],[5, 7],[13, 14]],
-['Paris FC','Angers','2026-11-22',[0, 0],[10, 2],[17, 12],[1, 1],[6, 6],[14, 5]],
-['Lorient','Rennes','2026-11-22',[1, 1],[7, 5],[11, 18],[2, 2],[7, 9],[9, 8]],
-['Marseille','Le Mans','2026-11-22',[2, 0],[2, 5],[13, 11],[3, 4],[5, 5],[9, 14]],
-['Brentford','Everton','2026-11-23',[2, 0],[6, 3],[8, 9],[0, 1],[3, 9],[19, 4]],
-['Levante','Elche','2026-11-23',[0, 0],[5, 1],[14, 12],[4, 1],[3, 12],[14, 3]],
-['Monza','Fiorentina','2026-11-23',[1, 0],[3, 7],[8, 12],[0, 1],[6, 3],[12, 16]]
-];R.forEach(function(r){STATS[r[2]+'|'+r[0]+'|'+r[1]]={ht:r[3],c:r[4],f:r[5],y:r[6],gk:r[7],s:r[8]};});})();
-
-var KEY='lge-analyse-foot-v1';
-var SAMPLE=[
- {id:'ex1',ex:true,league:'Championnat exemple',date:'Sam. 16:00',home:'AS Lomé Nord',away:'Atakpamé SC',n:12,hf:2.3,hc:0.6,af:0.8,ac:1.9,lgH:1.5,lgA:1.2,o1:1.35,ox:4.6,o2:8.0},
- {id:'ex2',ex:true,league:'Championnat exemple',date:'Sam. 18:00',home:'Kara United',away:'Sokodé Athletic',n:12,hf:1.6,hc:1.0,af:1.1,ac:1.2,lgH:1.5,lgA:1.2,o1:2.2,ox:3.1,o2:3.3},
- {id:'ex3',ex:true,league:'Championnat exemple',date:'Dim. 15:00',home:'Dapaong FC',away:'Tsévié Stars',n:10,hf:1.2,hc:1.1,af:1.0,ac:1.4,lgH:1.5,lgA:1.2,o1:2.6,ox:3.0,o2:2.8},
- {id:'ex4',ex:true,league:'Championnat exemple',date:'Dim. 17:00',home:'Kpalimé Monts',away:'Aného Océan',n:11,hf:1.9,hc:0.8,af:0.9,ac:1.6,lgH:1.5,lgA:1.2,o1:1.55,ox:3.9,o2:5.5}
-];
-var state={tab:'pro',th:75,exDay:pickDay(),scores:{},preDay:pickDay(),proDay:pickDay(),riskDay:dayPick(ALL_DAYS),usDay:dayPick(US_DAYS),preSp:'foot',preLg:'all',resDay:RES_DAYS[0],resLg:'all',matches:[],editing:null};
-function load(){
-  try{var r=localStorage.getItem(KEY);if(r){var o=JSON.parse(r);if(o&&Array.isArray(o.matches)){state.matches=o.matches;state.th=(o.th&&o.th!==90)?o.th:75;return;}}}catch(e){}
-  state.matches=SAMPLE.map(function(x){return Object.assign({},x);});
-}
-function save(){try{localStorage.setItem(KEY,JSON.stringify({th:state.th,matches:state.matches}));}catch(e){}}
+function $(id){return document.getElementById(id);}
+function pad(n){return n<10?'0'+n:''+n;}
+function dkey(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
+function dayDate(D){var p=D.split('-');return new Date(+p[0],+p[1]-1,+p[2]);}
+function dayStart(D){return dayDate(D).getTime();}
+function dayLabel(D){return dayDate(D).toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'});}
+function hhmm(t){return new Date(t).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});}
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
 function f2(x){return x.toFixed(2).replace('.',',');}
 function pc(p){return Math.round(p*100)+' %';}
-function pts(x){return (x>=0?'+':'')+(x*100).toFixed(1).replace('.',',')+' pts';}
-function $(id){return document.getElementById(id);}
+function store(k,v){try{localStorage.setItem(k,v);}catch(e){}}
+function read(k){try{return localStorage.getItem(k);}catch(e){return null;}}
+function seasonF(){var d=new Date();return d.getMonth()>=6?d.getFullYear():d.getFullYear()-1;}
+function seasonN(){var d=new Date();return d.getMonth()>=9?d.getFullYear():d.getFullYear()-1;}
+function inGroup(m){return state.grp==='all'||LGS[m.lg].g===state.grp;}
+function ml(m){return LGS[m.lg].n;}
 
+/* ---------- Appels API avec quota ---------- */
+var rate=[];
+function throttle(){
+  var lim=window.__RATE||9;
+  return new Promise(function(res){(function tick(){
+    var now=Date.now();rate=rate.filter(function(x){return now-x<61000;});
+    if(rate.length<lim){rate.push(now);res();}else setTimeout(tick,1000);
+  })();});
+}
+function usage(){
+  var u=null,d=new Date().toISOString().slice(0,10);
+  try{u=JSON.parse(read(K_USE)||'null');}catch(e){}
+  if(!u||u.d!==d)u={d:d,n:0};return u;
+}
+function bump(){var u=usage();u.n++;store(K_USE,JSON.stringify(u));}
+function call(base,path){
+  if(usage().n>=DAILY)return Promise.reject({daily:true});
+  return throttle().then(function(){
+    bump();render();
+    return fetch(base+path,{headers:{'x-apisports-key':state.key}});
+  }).then(function(r){
+    if(r.status===429)throw {rate:true};
+    if(!r.ok)throw {http:r.status};
+    return r.json();
+  }).then(function(j){
+    var e=j.errors,has=e&&(Array.isArray(e)?e.length:Object.keys(e).length);
+    if(has)throw {api:e};
+    return j.response||[];
+  });
+}
+function keyHelp(raw){
+  return 'Clé API non reconnue par le service. Vérifiez que : (1) c\'est bien la clé de dashboard.api-football.com (page « My Access »), pas celle de football-data.org ni de RapidAPI ; (2) la clé est copiée en entier, sans espace ; (3) l\'adresse e-mail du compte est confirmée. Réponse du service : '+raw;
+}
+function checkKey(){
+  return fetch(FB+'status',{headers:{'x-apisports-key':state.key}}).then(function(r){return r.json();}).then(function(j){
+    var e=j.errors,has=e&&(Array.isArray(e)?e.length:Object.keys(e).length);
+    if(has){
+      state.blocked=true;
+      var txt=Array.isArray(e)?e.join(' '):Object.keys(e).map(function(k){return e[k];}).join(' ');
+      state.errs=[keyHelp(txt)];return false;
+    }
+    var r=j.response||{},rq=r.requests||{},sb=r.subscription||{};
+    if(typeof rq.limit_day==='number'&&rq.limit_day>0)DAILY=rq.limit_day;
+    if(typeof rq.current==='number')store(K_USE,JSON.stringify({d:new Date().toISOString().slice(0,10),n:rq.current}));
+    state.plan=sb.plan||'';
+    if(sb.active===false){state.blocked=true;state.errs=['Votre abonnement API-Football est inactif. Vérifiez votre compte sur dashboard.api-football.com.'];return false;}
+    return true;
+  }).catch(function(){return true;});
+}
+function startWithCheck(){
+  state.blocked=false;state.errs=[];
+  return checkKey().then(function(ok){render();if(ok)return ensure();});
+}
+function explain(e,what){
+  if(e&&e.daily)return 'Quota du jour atteint (100 requêtes). Reprise demain à 00:00 (heure UTC).';
+  if(e&&e.rate)return 'Trop de requêtes à la minute : la page réessaie plus tard.';
+  if(e&&e.http)return 'Erreur '+e.http+' ('+what+').';
+  if(e&&e.api){
+    var o=e.api,txt=Array.isArray(o)?o.join(' '):Object.keys(o).map(function(k){return o[k];}).join(' ');
+    if(o.token||o.Token||/key/i.test(txt))return keyHelp(txt);
+    if(o.plan)return 'Votre offre gratuite ne donne pas accès à ces données ('+what+') : '+txt;
+    if(o.requests||/limit/i.test(txt))return 'Quota atteint ('+what+') : '+txt;
+    return 'Réponse du service ('+what+') : '+txt;
+  }
+  return 'Connexion impossible ('+what+'). Vérifiez internet et votre clé API.';
+}
+function fatal(e){
+  if(!e||e.daily||e.rate)return true;
+  if(e.api)return /token|key|plan/i.test(JSON.stringify(e.api));
+  if(e.http)return false;
+  return true;
+}
+
+/* ---------- Normalisation ---------- */
+function kindF(s){
+  if(s==='FT'||s==='AET'||s==='PEN')return 'done';
+  if(s==='1H'||s==='HT'||s==='2H'||s==='ET'||s==='BT'||s==='P'||s==='LIVE'||s==='INT')return 'live';
+  if(s==='NS'||s==='TBD')return 'pre';
+  return 'off';
+}
+function normF(x){
+  var lg=x.league&&x.league.id;if(!LGS[lg]||LGS[lg].g==='nba')return null;
+  var s=x.fixture.status.short;
+  return {id:'f'+x.fixture.id,sp:'f',lg:lg,t:x.fixture.timestamp*1000,k:kindF(s),home:x.teams.home.name,away:x.teams.away.name,
+    hg:(typeof x.goals.home==='number')?x.goals.home:null,ag:(typeof x.goals.away==='number')?x.goals.away:null,min:x.fixture.status.elapsed||null};
+}
+function normB(x){
+  if(x.league&&x.league!=='Standard')return null;
+  var s=x.status&&x.status.short,k=s===3?'done':s===2?'live':s===1?'pre':'off';
+  var sc=x.scores||{},hp=sc.home&&sc.home.points,ap=sc.visitors&&sc.visitors.points;
+  return {id:'n'+x.id,sp:'b',lg:'NBA',t:Date.parse(x.date&&x.date.start),k:k,home:x.teams.home.name,away:x.teams.visitors.name,
+    hg:(typeof hp==='number')?hp:null,ag:(typeof ap==='number')?ap:null,min:null,clock:x.status&&x.status.clock||null};
+}
+function absorb(list){
+  var n=0;list.forEach(function(m){if(m&&m.t){state.M[m.id]=m;n++;}});
+  if(n){state.ver++;state.updated=Date.now();}
+  saveCache();
+}
+function saveCache(){
+  var arr=Object.keys(state.M).map(function(i){var m=state.M[i];return [m.id,m.sp,m.lg,m.t,m.k,m.home,m.away,m.hg,m.ag,m.min,m.clock||null];});
+  store(K_CACHE,JSON.stringify({updated:state.updated,fetched:state.fetched,m:arr}));
+}
+function loadCache(){
+  try{var o=JSON.parse(read(K_CACHE)||'null');if(!o)return;
+    (o.m||[]).forEach(function(a){state.M[a[0]]={id:a[0],sp:a[1],lg:a[2],t:a[3],k:a[4],home:a[5],away:a[6],hg:a[7],ag:a[8],min:a[9],clock:a[10]};});
+    state.fetched=o.fetched||{};state.updated=o.updated||null;state.ver++;
+  }catch(e){}
+}
+
+/* ---------- Tâches de chargement ---------- */
+function histKey(id){return 'h:'+id+':'+(id==='NBA'?seasonN():seasonF());}
+function needFoot(){return state.grp!=='nba';}
+function needNba(){return state.grp==='all'||state.grp==='nba';}
+function histNeeded(){
+  var ids=[];if(needFoot())ids=ids.concat(FOOT);if(needNba())ids.push('NBA');
+  return ids.filter(function(id){return !state.fetched[histKey(id)]&&!state.tried[histKey(id)];});
+}
+function ready(){return histNeeded().length===0;}
+function liveSoon(){
+  var now=Date.now();
+  return Object.keys(state.M).some(function(i){var m=state.M[i];return m.k==='live'||(m.k==='pre'&&Math.abs(m.t-now)<25*60000);});
+}
+function buildTasks(){
+  var tasks=[],D=state.day,today=dkey(new Date()),now=Date.now();
+  var ttl=D===today?(liveSoon()?270000:1800000):(D<today?Infinity:6*3600000);
+  function stale(k){var ts=state.fetched[k];return !ts||now-ts>ttl;}
+  if(needFoot()&&stale('d:'+D)){tasks.push({label:'matchs du '+dayLabel(D),run:function(){
+    return call(FB,'fixtures?date='+D+'&timezone='+encodeURIComponent(TZ)).then(function(r){absorb(r.map(normF));state.fetched['d:'+D]=Date.now();});}});}
+  if(needNba()&&stale('dn:'+D)){tasks.push({label:'NBA du '+dayLabel(D),run:function(){
+    return call(NB,'games?date='+D).then(function(r){absorb(r.map(normB));state.fetched['dn:'+D]=Date.now();});}});}
+  histNeeded().forEach(function(id){
+    var k=histKey(id);
+    if(id==='NBA')tasks.push({label:'historique NBA',hist:k,run:function(){
+      return call(NB,'games?league=standard&season='+seasonN()).then(function(r){absorb(r.map(normB));state.fetched[k]=Date.now();});}});
+    else tasks.push({label:'historique '+LGS[id].n,hist:k,run:function(){
+      return call(FB,'fixtures?league='+id+'&season='+seasonF()+'&status=FT-AET-PEN').then(function(r){absorb(r.map(normF));state.fetched[k]=Date.now();});}});
+  });
+  return tasks;
+}
+function ensure(){
+  if(state.busy||!state.key||state.blocked)return Promise.resolve();
+  var tasks=buildTasks();
+  if(!tasks.length){schedule();return Promise.resolve();}
+  state.busy=true;state.errs=[];
+  var total=tasks.length,done=0,stop=false,chain=Promise.resolve();
+  tasks.forEach(function(t){
+    chain=chain.then(function(){
+      if(stop)return;
+      state.prog=(done+1)+'/'+total;render();
+      return t.run().catch(function(e){
+        var m=explain(e,t.label);if(state.errs.indexOf(m)<0)state.errs.push(m);
+        if(t.hist)state.tried[t.hist]=true;
+        if(e&&e.api&&e.api.plan){FOOT.concat(['NBA']).forEach(function(id){state.tried[histKey(id)]=true;});}
+        if(e&&e.api&&/token|key/i.test(JSON.stringify(e.api)))state.blocked=true;
+        if(fatal(e)){stop=true;}
+      }).then(function(){done++;});
+    });
+  });
+  return chain.then(function(){
+    state.busy=false;state.prog='';saveCache();render();schedule();
+  });
+}
+function schedule(){
+  clearTimeout(timer);if(!state.key)return;
+  if(usage().n>=DAILY-6)return;
+  timer=setTimeout(ensure,liveSoon()?300000:1800000);
+}
+
+/* ---------- Statistiques et modèles ---------- */
+function statsF(cut){
+  var key='f'+cut+'|'+state.ver;if(cacheS[key])return cacheS[key];
+  var S={teams:{},gh:0,ga:0,n:0};
+  Object.keys(state.M).forEach(function(i){
+    var m=state.M[i];if(m.sp!=='f'||m.k!=='done'||m.t>=cut||m.hg==null||m.ag==null)return;
+    S.gh+=m.hg;S.ga+=m.ag;S.n++;
+    var H=S.teams[m.home]||(S.teams[m.home]={hn:0,hf:0,hc:0,an:0,af:0,ac:0});
+    var A=S.teams[m.away]||(S.teams[m.away]={hn:0,hf:0,hc:0,an:0,af:0,ac:0});
+    H.hn++;H.hf+=m.hg;H.hc+=m.ag;A.an++;A.af+=m.ag;A.ac+=m.hg;
+  });
+  S.lgH=S.n?S.gh/S.n:1.5;S.lgA=S.n?S.ga/S.n:1.2;
+  cacheS={};cacheS[key]=S;return S;
+}
+function statsB(cut){
+  var key='b'+cut+'|'+state.ver;if(cacheS[key])return cacheS[key];
+  var S={teams:{},pts:0,g:0};
+  Object.keys(state.M).forEach(function(i){
+    var m=state.M[i];if(m.sp!=='b'||m.k!=='done'||m.t>=cut||m.hg==null||m.ag==null)return;
+    S.pts+=m.hg+m.ag;S.g++;
+    var H=S.teams[m.home]||(S.teams[m.home]={gp:0,pf:0,pa:0}),A=S.teams[m.away]||(S.teams[m.away]={gp:0,pf:0,pa:0});
+    H.gp++;H.pf+=m.hg;H.pa+=m.ag;A.gp++;A.pf+=m.ag;A.pa+=m.hg;
+  });
+  S.L=S.g?S.pts/(2*S.g):114;
+  cacheS[key]=S;return S;
+}
+function modelFor(m,cut){
+  var ck=m.id+'|'+cut+'|'+state.ver;if(cacheM[ck])return cacheM[ck];
+  var o;
+  if(m.sp==='f'){
+    var S=statsF(cut),H=S.teams[m.home]||{},A=S.teams[m.away]||{},K=6;
+    var sh=function(sum,n,lg){return (sum+K*lg)/(n+K);};
+    var hS=sh(H.hf||0,H.hn||0,S.lgH),hC=sh(H.hc||0,H.hn||0,S.lgA),aS=sh(A.af||0,A.an||0,S.lgA),aC=sh(A.ac||0,A.an||0,S.lgH);
+    var lh=hS*aC/S.lgH,la=aS*hC/S.lgA;
+    o={lh:lh,la:la,r:finalModel(lh,la,0,0,false),n:Math.min(H.hn||0,A.an||0)};
+  }else{
+    var B=statsB(cut),Hb=B.teams[m.home]||{gp:0,pf:0,pa:0},Ab=B.teams[m.away]||{gp:0,pf:0,pa:0},Kb=8,L=B.L;
+    var offH=(Hb.pf+Kb*L)/(Hb.gp+Kb),defH=(Hb.pa+Kb*L)/(Hb.gp+Kb),offA=(Ab.pf+Kb*L)/(Ab.gp+Kb),defA=(Ab.pa+Kb*L)/(Ab.gp+Kb);
+    var eh=L+(offH-L)+(defA-L)+1.25,ea=L+(offA-L)+(defH-L)-1.25;
+    o={lh:eh,la:ea,r:basketModel(eh,ea),n:Math.min(Hb.gp,Ab.gp)};
+  }
+  cacheM[ck]=o;return o;
+}
+function estMin(m){
+  if(m.min)return Math.min(90,m.min);
+  var w=Math.floor((Date.now()-m.t)/60000);
+  if(w<=47)return Math.max(1,w);if(w<=62)return 45;return Math.min(90,w-15);
+}
+function dayMatches(D){
+  return Object.keys(state.M).map(function(i){return state.M[i];}).filter(function(m){
+    return dkey(new Date(m.t))===D&&m.k!=='off'&&inGroup(m);
+  }).sort(function(a,b){return a.t-b.t;});
+}
+function picksFor(D){
+  var cut=dayStart(D);
+  return dayMatches(D).map(function(m){var mo=modelFor(m,cut);return {m:m,mo:mo,k:mo.r.markets[0]};})
+    .filter(function(x){return x.mo.n>=2&&x.k;}).sort(function(a,b){return b.k.p-a.k.p;}).slice(0,5);
+}
+
+/* ---------- Affichage ---------- */
+var SV='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">';
+var ICON={win:SV+'<path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',lose:SV+'<path d="M6 6l12 12M18 6L6 18"/></svg>',wait:SV+'<circle cx="12" cy="12" r="8"/><path d="M12 8v4l2.5 2"/></svg>'};
+function markHTML(st,big){
+  var t=st==='win'?'Validé':st==='lose'?'Perdu':'En attente du résultat';
+  return '<span class="mark'+(big?' big':'')+' '+st+'" role="img" aria-label="'+t+'">'+ICON[st]+'</span>';
+}
+function barBlock(r){
+  if(r.two)return '<div class="bar" role="img" aria-label="Chances de victoire"><span class="b1" style="width:'+(r.p1*100)+'%"></span><span class="b2" style="width:'+(r.p2*100)+'%"></span></div>'+
+    '<div class="legend two"><div><b>'+pc(r.p1)+'</b><small>Domicile</small></div><div><b>'+pc(r.p2)+'</b><small>Extérieur</small></div></div>';
+  return '<div class="bar" role="img" aria-label="Répartition des issues"><span class="b1" style="width:'+(r.p1*100)+'%"></span><span class="bx" style="width:'+(r.px*100)+'%"></span><span class="b2" style="width:'+(r.p2*100)+'%"></span></div>'+
+  '<div class="legend"><div><b>'+pc(r.p1)+'</b><small>Domicile (1)</small></div><div><b>'+pc(r.px)+'</b><small>Nul (X)</small></div><div><b>'+pc(r.p2)+'</b><small>Extérieur (2)</small></div></div>';
+}
 function marketBlock(r){
   var ok=r.markets.filter(function(k){return k.p*100>=state.th;}),chips,msg='',more='';
   function chip(k,cls){return '<span class="chip'+cls+'">'+esc(k.l)+' <b>'+pc(k.p)+'</b> <small>éq. '+f2(1/k.p)+'</small></span>';}
@@ -633,506 +513,153 @@ function marketBlock(r){
   }
   return msg+'<div class="chips">'+chips+more+'</div>';
 }
-function barBlock(r){
-  return '<div class="bar" role="img" aria-label="Répartition des issues"><span class="b1" style="width:'+(r.p1*100)+'%"></span><span class="bx" style="width:'+(r.px*100)+'%"></span><span class="b2" style="width:'+(r.p2*100)+'%"></span></div>'+
-  '<div class="legend"><div><b>'+pc(r.p1)+'</b><small>Domicile (1)</small></div><div><b>'+pc(r.px)+'</b><small>Nul (X)</small></div><div><b>'+pc(r.p2)+'</b><small>Extérieur (2)</small></div></div>';
+function expLine(m,mo){
+  return m.sp==='f'?'Buts attendus <b>'+f2(mo.lh)+'</b> – <b>'+f2(mo.la)+'</b>':'Points attendus <b>'+Math.round(mo.lh)+'</b> – <b>'+Math.round(mo.la)+'</b>';
 }
 function filterBtns(items,cur,attr){
   return items.map(function(it){return '<button type="button" class="fbtn" '+attr+'="'+esc(it[0])+'" aria-pressed="'+(it[0]===cur)+'">'+esc(it[1])+'</button>';}).join('');
 }
-function lgItems(){return [['all','Tous']].concat(Object.keys(LG).map(function(k){return [k,LG[k]];}));}
+function empty(msg){return '<div class="panel"><p class="note">'+msg+'</p></div>';}
+function noData(){
+  if(!state.key)return 'Ajoutez votre clé API (bouton « Clé API » en haut) pour charger les matchs.';
+  if(state.busy)return 'Chargement des matchs…';
+  return 'Aucune donnée pour le moment. Vérifiez le message d\'état en haut de la page.';
+}
+function score(m){return (m.hg==null?0:m.hg)+' – '+(m.ag==null?0:m.ag);}
 
-function renderPre(){
-  var pv=futureDays(PRE_DAYS);if(pv.indexOf(state.preDay)<0)state.preDay=pv[0];
-  $('pre-days').innerHTML=filterBtns(pv.map(function(d){return [d,dayLabel(d)];}),state.preDay,'data-pday');
-  $('pre-lg').innerHTML=filterBtns(lgItems(),state.preLg,'data-plg');
-  var list=PRE.filter(function(x){return x.day===state.preDay&&(state.preLg==='all'||x.lg===state.preLg);}).sort(function(a,b){return a.time<b.time?-1:a.time>b.time?1:a.i-b.i;});
-  var hit=list.filter(function(x){return x.r.markets[0].p*100>=state.th;}).length;
-  $('pre-sum').textContent=list.length+' match'+(list.length>1?'s':'')+' · '+hit+' avec au moins un marché à '+state.th+' % ou plus';
-  $('pre-cards').innerHTML=list.length?list.map(function(x){
-    var r=x.r;
-    return '<article class="card"><div class="meta">'+esc(LG[x.lg])+' · '+x.time+' GMT</div>'+
-      '<div class="teams">'+esc(x.home)+' – '+esc(x.away)+'</div>'+
-      '<div class="xg">Buts attendus (estimés) <b>'+f2(r.lh)+'</b> – <b>'+f2(r.la)+'</b></div>'+
-      barBlock(r)+marketBlock(r)+otherOpts(x)+aiBtn(x.i)+'</article>';
-  }).join(''):'<div class="panel"><p class="note">Aucun match ce jour-là pour ce championnat.</p></div>';
+function renderStatus(){
+  var s=$('status'),e=$('err');
+  if(!state.key){s.hidden=true;}
+  else{
+    s.hidden=false;
+    var txt=state.busy?'Chargement en cours'+(state.prog?' ('+state.prog+')':'')+'…':(state.updated?'Dernière mise à jour à '+hhmm(state.updated)+'. La page se met à jour toute seule.':'En attente des données.');
+    var hn=histNeeded().length;if(hn&&!state.busy&&state.updated)txt+=' Historique incomplet : les pronostics se complètent au fil des chargements.';
+    s.textContent=txt+' Requêtes aujourd\'hui : '+usage().n+'/'+DAILY+(state.plan?' (offre '+state.plan+')':'')+'.';
+  }
+  e.hidden=!state.errs.length;e.textContent=state.errs.join(' ');
 }
-
-function liveFind(x){
-  for(var i=0;i<LIVE.length;i++){if(LIVE[i][0]===x.home&&LIVE[i][1]===x.away&&x.day===SNAPDAY)return i;}
-  return -1;
-}
-function liveNote(x){
-  var i=liveFind(x);if(i<0)return '';
-  var L=LIVE[i];return '<span>(en cours : '+L[2]+'–'+L[3]+', environ '+estMin(L[4])+'e minute)</span>';
-}
-function loadLive(i){
-  var L=LIVE[i],m=PRE.filter(function(x){return liveFind(x)===i;})[0];if(!m)return;
-  $('live-sel').value=String(m.i);$('live-min').value=estMin(L[4]);$('live-gh').value=L[2];$('live-ga').value=L[3];
-}
-function renderLiveStatus(){
-  var upcoming=PRE.filter(function(x){return x.day===SNAPDAY&&x.time>SNAP&&liveFind(x)<0;}).sort(function(a,b){return a.time<b.time?-1:1;});
-  var nxt=upcoming[0];
-  $('live-status').textContent='Relevé de '+SNAP+' GMT : '+(LIVE.length?LIVE.length+' match'+(LIVE.length>1?'s':'')+' en cours':'aucun match en cours')+', '+upcoming.length+' à venir ce soir'+(nxt?' (prochain coup d\'envoi à '+nxt.time+' GMT : '+nxt.home+' – '+nxt.away+')':'')+'.';
-  $('live-list').innerHTML=LIVE.map(function(L,i){
-    return '<button type="button" class="chip ok" data-live="'+i+'" style="cursor:pointer">'+esc(L[0])+' <b>'+L[2]+'–'+L[3]+'</b> '+esc(L[1])+' <small>~'+estMin(L[4])+'e</small></button>';
-  }).join('');
-  if(LIVE.length){loadLive(0);}
-  else if(nxt){$('live-sel').value=String(nxt.i);$('live-min').value='0';$('live-gh').value='0';$('live-ga').value='0';}
-}
-function initLive(){
-  var opts=PRE.filter(function(x){return x.day<='2026-11-22';}).sort(function(a,b){return (a.day+a.time)<(b.day+b.time)?-1:1;});
-  $('live-sel').innerHTML=opts.map(function(x){return '<option value="'+x.i+'">'+dayLabel(x.day)+' '+x.time+' · '+esc(x.home)+' – '+esc(x.away)+'</option>';}).join('');
-}
-function intv(id,def,max){var v=parseInt($(id).value,10);if(!isFinite(v)||v<0)v=def;return Math.min(v,max);}
-function renderLive(){
-  var m=PRE[parseInt($('live-sel').value,10)];if(!m){return;}
-  var min=intv('live-min',0,120),gh=intv('live-gh',0,15),ga=intv('live-ga',0,15);
-  var f=Math.max(0.02,(90-Math.min(min,90))/90);
-  var r=finalModel(m.lh*f,m.la*f,gh,ga,null,true);
-  $('live-out').innerHTML='<article class="card"><div class="meta">'+esc(LG[m.lg])+' · '+min+'e minute</div>'+
-    '<div class="teams">'+esc(m.home)+' '+gh+' – '+ga+' '+esc(m.away)+'</div>'+
-    '<div class="xg">Buts restants attendus <b>'+f2(r.lh)+'</b> – <b>'+f2(r.la)+'</b> · score final le plus probable <b>'+r.score+'</b></div>'+
-    barBlock(r)+marketBlock(r)+
-    '<p class="note">Estimation : le rythme de buts est supposé constant sur le temps restant. Cartons rouges et blessures ne sont pas pris en compte.</p></article>';
-}
-
-function renderRes(){
-  $('res-days').innerHTML=filterBtns(RES_DAYS.map(function(d){return [d,dayLabel(d)];}),state.resDay,'data-rday');
-  $('res-lg').innerHTML=filterBtns(lgItems(),state.resLg,'data-rlg');
-  var list=RES.filter(function(x){return x[3]===state.resDay&&(state.resLg==='all'||x[0]===state.resLg);});
-  if(!list.length){$('res-stats').innerHTML='<p class="note">Aucun résultat pour ce jour et ce championnat.</p>';$('res-list').innerHTML='';return;}
-  var g=0,hw=0,dr=0,aw=0,bt=0,o25=0;
-  list.forEach(function(x){g+=x[4]+x[5];if(x[4]>x[5])hw++;else if(x[4]===x[5])dr++;else aw++;if(x[4]>0&&x[5]>0)bt++;if(x[4]+x[5]>=3)o25++;});
-  var n=list.length;
-  $('res-stats').innerHTML='<h2>'+dayLabel(state.resDay)+' : '+n+' match'+(n>1?'s':'')+'</h2><div class="stats">'+
-    '<div class="stat"><b>'+g+'</b><small>buts ('+f2(g/n)+' par match)</small></div>'+
-    '<div class="stat"><b>'+hw+' · '+dr+' · '+aw+'</b><small>domicile · nuls · extérieur</small></div>'+
-    '<div class="stat"><b>'+bt+' / '+n+'</b><small>les deux équipes ont marqué</small></div>'+
-    '<div class="stat"><b>'+o25+' / '+n+'</b><small>plus de 2,5 buts</small></div></div>';
-  var okN=0,allN=0,xOk=0,xAll=0;
-  var rows=list.map(function(x){
-    var pre=null;for(var i=0;i<PRE.length;i++){var y=PRE[i];if(y.day===x[3]&&y.home===x[1]&&y.away===x[2]){pre=y;break;}}
-    var pr='';
-    if(pre){
-      pr='<div class="pvs">'+pre.r.markets.slice(0,3).map(function(k){var w=k.w(x[4],x[5]);allN++;if(w)okN++;return '<span class="pv '+(w?'ok':'ko')+'">'+(w?'✓ ':'✗ ')+esc(k.l)+' '+pc(k.p)+'</span>';}).join('')+'</div>';
-      var S=STATS[x[3]+'|'+x[1]+'|'+x[2]];
-      if(S){pr+='<div class="pvs">'+extraList(pre).map(function(o){var w=o.t(S,x[4],x[5]);xAll++;if(w)xOk++;return '<span class="pv '+(w?'ok':'ko')+'">'+(w?'✓ ':'✗ ')+esc(o.l)+' '+pc(o.p)+' <small>('+esc(o.v(S,x[4],x[5]))+')</small></span>';}).join('')+'</div>';}
-      else pr+='<div class="pvs"><span class="note">Autres prédictions : statistiques non relevées pour ce match.</span></div>';
-    }
-    return '<div class="res"><div class="meta">'+esc(LG[x[0]])+'</div><div class="res-row"><span>'+esc(x[1])+'</span><b>'+x[4]+' – '+x[5]+'</b><span class="r">'+esc(x[2])+'</span></div>'+pr+'</div>';
-  });
-  $('res-list').innerHTML=rows.join('');
-  if(allN)$('res-stats').innerHTML+='<p class="note" style="margin-top:8px">Prédictions d\'avant-match : <span class="pv ok">✓ en vert = validée</span>, <span class="pv ko">✗ en rouge = ratée</span>. '+okN+' sur '+allN+' validées (les 3 marchés les plus probables de chaque match).'+(xAll?' Autres prédictions (mi-temps, corners, jaunes, fautes, tirs, dégagements au but) : '+xOk+' sur '+xAll+' validées, d\'après les statistiques relevées.':'')+'</p>';
-}
-
-function renderMine(){
-  var list=state.matches.map(function(m){var r=analyse(m);return {m:m,r:r,top:r.markets[0].p};}).sort(function(a,b){return b.top-a.top;});
-  var hit=list.filter(function(x){return x.top*100>=state.th;}).length;
-  $('summary').textContent=list.length+' match'+(list.length>1?'s':'')+' analysé'+(list.length>1?'s':'')+' · '+hit+' avec au moins un marché à '+state.th+' % ou plus';
-  if(!list.length){$('cards').innerHTML='<div class="panel"><p class="note">Aucun match pour le moment. Ouvrez « Ajouter un match » pour commencer.</p></div>';return;}
-  $('cards').innerHTML=list.map(function(x){
-    var m=x.m,r=x.r,vr=valueRows(m,r),val='';
-    if(vr){
-      val='<div class="val"><table><thead><tr><th>Issue</th><th>Cote</th><th>Modèle</th><th>Marché</th><th>Écart</th></tr></thead><tbody>'+
-      vr.map(function(v){return '<tr><td>'+v.n+'</td><td>'+f2(v.odd)+'</td><td>'+pc(v.model)+'</td><td>'+pc(v.fair)+'</td><td class="'+(v.edge>0.04?'pos':'')+'">'+pts(v.edge)+(v.edge>0.04?' · à étudier':'')+'</td></tr>';}).join('')+
-      '</tbody></table></div>';
-    }
-    return '<article class="card">'+
-      '<div class="card-top"><div><div class="meta">'+esc(m.league||'Match')+(m.date?' · '+esc(m.date):'')+'</div>'+
-      '<div class="teams">'+esc(m.home)+' – '+esc(m.away)+'</div></div>'+(m.ex?'<span class="badge">Exemple</span>':'')+'</div>'+
-      '<div class="xg">Buts attendus <b>'+f2(r.lh)+'</b> – <b>'+f2(r.la)+'</b> · score le plus probable <b>'+r.score+'</b></div>'+
-      barBlock(r)+marketBlock(r)+val+
-      '<div class="actions"><button type="button" data-edit="'+esc(m.id)+'">Modifier</button><button type="button" class="danger" data-del="'+esc(m.id)+'">Supprimer</button></div>'+
-    '</article>';
-  }).join('');
-}
-
-var SKEY='lge-analyse-foot-scores-v1';
-function loadScores(){try{var r=localStorage.getItem(SKEY);if(r){var o=JSON.parse(r);if(o&&typeof o==='object')state.scores=o;}}catch(e){}}
-function saveScores(){try{localStorage.setItem(SKEY,JSON.stringify(state.scores));}catch(e){}}
-function scoreKey(x){return x.day+'|'+x.home+'|'+x.away;}
-function scoreFor(x){
-  var s=state.scores[scoreKey(x)];
-  if(s&&typeof s[0]==='number'&&typeof s[1]==='number')return {h:s[0],a:s[1],src:'manual'};
-  for(var i=0;i<RES.length;i++){var r=RES[i];if(r[3]===x.day&&r[1]===x.home&&r[2]===x.away)return {h:r[4],a:r[5],src:'data'};}
-  return null;
-}
-var SV='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">';
-var ICON={win:SV+'<path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',lose:SV+'<path d="M6 6l12 12M18 6L6 18"/></svg>',wait:SV+'<circle cx="12" cy="12" r="8"/><path d="M12 8v4l2.5 2"/></svg>'};
-function markHTML(st,big){
-  var t=st==='win'?'Validé':st==='lose'?'Perdu':'En attente du résultat';
-  return '<span class="mark'+(big?' big':'')+' '+st+'" role="img" aria-label="'+t+'">'+ICON[st]+'</span>';
+function renderDays(){
+  var t=new Date(),items=[];
+  for(var i=-3;i<=3;i++){var d=new Date(t.getFullYear(),t.getMonth(),t.getDate()+i);items.push([dkey(d),i===0?'Aujourd\'hui':dayLabel(dkey(d))]);}
+  $('days').innerHTML=filterBtns(items,state.day,'data-day');
+  $('grp').innerHTML=filterBtns(GROUPS,state.grp,'data-grp');
 }
 function renderPro(){
-  $('pro-days').innerHTML=filterBtns(PRE_DAYS.map(function(d){return [d,dayLabel(d)];}),state.proDay,'data-dday');
-  $('pro-title').textContent='Mes pronostics du '+dayLabel(state.proDay);
-  var list=PRE.filter(function(x){return x.day===state.proDay;}).map(function(x){return {x:x,k:x.r.markets[0]};})
-    .sort(function(a,b){return b.k.p-a.k.p;}).slice(0,5);
-  AI_PRO=list.map(function(o){return {x:o.x,k:o.k};});
-  var prod=1,wins=0,losses=0,wait=0;
+  var D=state.day;
+  $('pro-title').textContent='Mes pronostics du '+dayLabel(D);
+  if(!Object.keys(state.M).length){$('pro-cards').innerHTML=empty(noData());$('pro-combo').hidden=true;return;}
+  if(!ready()){$('pro-cards').innerHTML=empty('Chargement de l\'historique des résultats ('+histNeeded().length+' compétition'+(histNeeded().length>1?'s':'')+' restante'+(histNeeded().length>1?'s':'')+'). Les pronostics s\'affichent quand il est complet.');$('pro-combo').hidden=true;return;}
+  var list=picksFor(D),prod=1,wins=0,losses=0,wait=0;
   list.forEach(function(o){
-    prod*=o.k.p;
-    var sc=scoreFor(o.x);o.sc=sc;
-    o.st=sc?(o.k.w(sc.h,sc.a)?'win':'lose'):'wait';
+    prod*=o.k.p;var m=o.m;
+    if(m.k==='done'&&m.hg!=null){o.st=o.k.w(m.hg,m.ag)?'win':'lose';}else o.st='wait';
     if(o.st==='win')wins++;else if(o.st==='lose')losses++;else wait++;
   });
-  $('pro-cards').innerHTML=list.map(function(o){
-    var x=o.x,k=o.k,ok=k.p*100>=state.th,cls=o.st==='win'?' ok':o.st==='lose'?' lose':(ok?' ok':'');
-    var vh=o.sc?o.sc.h:'',va=o.sc?o.sc.a:'';
-    return '<article class="card"><div class="card-top"><div><div class="meta">'+esc(LG[x.lg])+' · '+x.time+' GMT</div>'+
-      '<div class="teams">'+esc(x.home)+' – '+esc(x.away)+'</div></div>'+markHTML(o.st,false)+'</div>'+
-      barBlock(x.r)+
+  $('pro-cards').innerHTML=list.length?list.map(function(o){
+    var m=o.m,k=o.k,ok=k.p*100>=state.th,cls=o.st==='win'?' ok':o.st==='lose'?' lose':(ok?' ok':'');
+    var sc=m.k==='done'?'Score final '+score(m):m.k==='live'?'En cours : '+score(m)+(m.sp==='f'?', environ '+estMin(m)+'e minute':''):'Coup d\'envoi à '+hhmm(m.t);
+    return '<article class="card"><div class="card-top"><div><div class="meta">'+esc(ml(m))+' · '+hhmm(m.t)+'</div>'+
+      '<div class="teams">'+esc(m.home)+' – '+esc(m.away)+'</div></div>'+markHTML(o.st,false)+'</div>'+
+      barBlock(o.mo.r)+
       '<div class="chips"><span class="chip'+cls+'">Pronostic : '+esc(k.l)+' <b>'+pc(k.p)+'</b> <small>éq. '+f2(1/k.p)+'</small></span></div>'+
-      '<div class="score-row"><span>Score final</span>'+
-      '<input type="text" inputmode="numeric" id="sc-h-'+x.i+'" data-sc="'+esc(scoreKey(x))+'" data-i="'+x.i+'" value="'+vh+'" aria-label="Buts '+esc(x.home)+'">'+
-      '<span>–</span><input type="text" inputmode="numeric" id="sc-a-'+x.i+'" data-sc="'+esc(scoreKey(x))+'" data-i="'+x.i+'" value="'+va+'" aria-label="Buts '+esc(x.away)+'">'+
-      (o.sc&&o.sc.src==='data'?'<span>(score issu des données)</span>':'')+(o.sc?'':liveNote(x))+'</div>'+otherOpts(x)+aiBtn(x.i)+'</article>';
-  }).join('');
-  if(!list.length){$('pro-combo').innerHTML='<p class="note">Aucun match relevé pour ce jour.</p>';return;}
+      '<div class="xg">'+sc+'</div></article>';
+  }).join(''):empty(state.errs.some(function(x){return x.indexOf('offre gratuite')>=0;})?'Pronostics indisponibles : votre offre gratuite ne donne pas accès à l\'historique de la saison, nécessaire au calcul. Les matchs, le direct et les résultats restent disponibles.':'Aucun pronostic pour ce jour : pas assez de matchs ou de résultats passés.');
+  if(!list.length){$('pro-combo').hidden=true;return;}
   var st=losses>0?'lose':(wins===list.length?'win':'wait');
   var line=st==='lose'?'Coupon perdu : '+losses+' pronostic'+(losses>1?'s':'')+' raté'+(losses>1?'s':'')+'.'
     :st==='win'?'Coupon validé : les '+list.length+' pronostics sont passés.'
-    :'Coupon en cours : '+wins+' validé'+(wins>1?'s':'')+', '+wait+' en attente. Saisissez les scores finaux pour valider.';
+    :'Coupon en cours : '+wins+' validé'+(wins>1?'s':'')+', '+wait+' en attente.';
+  $('pro-combo').hidden=false;
   $('pro-combo').innerHTML='<div class="verdict"><div><h2>Le coupon de '+list.length+'</h2><p class="note" style="margin-top:4px">'+line+'</p></div>'+markHTML(st,true)+'</div>'+
     '<div class="stats"><div class="stat"><b>'+pc(prod)+'</b><small>chance que tous passent</small></div>'+
     '<div class="stat"><b>'+f2(1/prod)+'</b><small>cote combinée équitable</small></div></div>'+
-    '<p class="note">En combiné, les probabilités se multiplient : même des pronostics à 75 % ne passent tous ensemble que dans une minorité des cas. Ce sont des estimations, pas des garanties.</p>'+aiCouponBtn('pro');
+    '<p class="note">En combiné, les probabilités se multiplient : même des pronostics à 90 % ne passent tous ensemble que dans une minorité des cas.</p>';
 }
-
-function riskCands(day){
-  var c=[];
-  PRE.filter(function(x){return x.day===day;}).forEach(function(x){
-    var k=x.r.markets[0],sc=scoreFor(x);
-    c.push({key:'f'+x.i,meta:LG[x.lg]+' · '+x.time+' GMT',name:x.home+' – '+x.away,label:k.l,p:k.p,st:sc?(k.w(sc.h,sc.a)?'win':'lose'):'wait',score:sc?sc.h+' – '+sc.a:'',opts:otherOpts(x)});
+function renderPre(){
+  if(!Object.keys(state.M).length){$('pre-sum').textContent='';$('pre-cards').innerHTML=empty(noData());return;}
+  var D=state.day,cut=dayStart(D),list=dayMatches(D).filter(function(m){return m.k==='pre';}),hit=0;
+  var cards=list.map(function(m){
+    var mo=modelFor(m,cut),r=mo.r;if(r.markets[0]&&r.markets[0].p*100>=state.th)hit++;
+    return '<article class="card"><div class="meta">'+esc(ml(m))+' · '+hhmm(m.t)+'</div>'+
+      '<div class="teams">'+esc(m.home)+' – '+esc(m.away)+'</div>'+
+      '<div class="xg">'+expLine(m,mo)+'</div>'+barBlock(r)+marketBlock(r)+'</article>';
   });
-  USP.filter(function(x){return x.day===day;}).forEach(function(x){
-    var home=x.ph>=x.pa,sc=usScore(x);
-    c.push({key:'u'+x.i,meta:SPORT[x.sp]+' · '+x.time+' GMT',name:x.home+' – '+x.away,label:'Victoire '+(home?x.home:x.away),p:home?x.ph:x.pa,st:sc?((home?sc.h>sc.a:sc.a>sc.h)?'win':'lose'):'wait',score:sc?sc.h+' – '+sc.a:''});
-  });
-  return c;
+  $('pre-sum').textContent=list.length+' match'+(list.length>1?'s':'')+' à venir · '+hit+' avec au moins un marché à '+state.th+' % ou plus'+(ready()?'':' (historique incomplet : probabilités provisoires)');
+  $('pre-cards').innerHTML=cards.length?cards.join(''):empty('Aucun match à venir ce jour-là pour ces compétitions.');
 }
-function riskPick(c){
-  if(c.length<=5)return c.slice();
-  var target=Math.log(1/3.5),best=null,bd=1e9,n=c.length;
-  (function rec(start,pick,lp){
-    if(pick.length===5){var d=Math.abs(lp-target);if(d<bd){bd=d;best=pick.slice();}return;}
-    for(var i=start;i<=n-(5-pick.length);i++){pick.push(i);rec(i+1,pick,lp+Math.log(c[i].p));pick.pop();}
-  })(0,[],0);
-  return best.map(function(i){return c[i];}).sort(function(a,b){return b.p-a.p;});
-}
-function renderRisk(){
-  $('risk-days').innerHTML=filterBtns(ALL_DAYS.map(function(d){return [d,dayLabel(d)];}),state.riskDay,'data-rday');
-  $('risk-title').textContent='Pronostic risqué du '+dayLabel(state.riskDay);
-  var list=riskPick(riskCands(state.riskDay)),prod=1,w=0,l=0,q=0;
-  AI_RISK=list;
-  list.forEach(function(o){prod*=o.p;if(o.st==='win')w++;else if(o.st==='lose')l++;else q++;});
-  $('risk-cards').innerHTML=list.map(function(o){
-    return '<article class="card"><div class="card-top"><div><div class="meta">'+esc(o.meta)+'</div><div class="teams">'+esc(o.name)+'</div></div>'+markHTML(o.st,false)+'</div>'+
-      '<div class="chips"><span class="chip">Pronostic : '+esc(o.label)+' <b>'+pc(o.p)+'</b> <small>éq. '+f2(1/o.p)+'</small></span>'+(o.score?'<span class="chip">Score final <b>'+esc(o.score)+'</b></span>':'')+'</div>'+(o.opts||'')+'</article>';
-  }).join('');
-  if(!list.length){$('risk-combo').innerHTML='<p class="note">Aucun match relevé pour ce jour.</p>';return;}
-  var st=l>0?'lose':(w===list.length?'win':'wait');
-  var line=st==='lose'?'Coupon perdu : '+l+' pronostic'+(l>1?'s':'')+' raté'+(l>1?'s':'')+'.':st==='win'?'Coupon validé : les '+list.length+' pronostics sont passés.':'Coupon en cours : '+w+' validé'+(w>1?'s':'')+', '+q+' en attente. Les scores se remplissent avec le prochain relevé.';
-  $('risk-combo').innerHTML='<div class="verdict"><div><h2>Le coupon risqué de '+list.length+'</h2><p class="note" style="margin-top:4px">'+line+'</p></div>'+markHTML(st,true)+'</div>'+
-    '<div class="stats"><div class="stat"><b>'+pc(prod)+'</b><small>chance que tous passent</small></div><div class="stat"><b>'+f2(1/prod)+'</b><small>cote combinée équitable</small></div></div>'+
-    (list.length<5?'<p class="note">Moins de 5 matchs relevés ce jour : le coupon est incomplet.</p>':'')+aiCouponBtn('risk');
-}
-function renderUS(){
-  var uv=futureDays(US_DAYS);if(uv.indexOf(state.usDay)<0)state.usDay=uv[0];
-  $('us-days').innerHTML=filterBtns(uv.map(function(d){return [d,dayLabel(d)];}),state.usDay,'data-uday');
-  var items=[];
-  USP.filter(function(x){return x.day===state.usDay&&(x.sp===state.preSp);}).forEach(function(x){
-    var sc=usScore(x);if(!sc)items.push({t:x.time,x:x,sc:null,home:x.home,away:x.away,sp:x.sp});
-  });
-  USRES.filter(function(r){return r[3]===state.usDay&&(r[0]===state.preSp);}).forEach(function(r){
-    items.push({t:'99',x:null,sc:{h:r[4],a:r[5]},home:r[1],away:r[2],sp:r[0]});
-  });
-  items.sort(function(a,b){return a.t<b.t?-1:a.t>b.t?1:0;});
-  var up=items.filter(function(o){return !o.sc;}).length;
-  $('us-sum').textContent=items.length+' match'+(items.length>1?'s':'')+' · '+up+' à venir, '+(items.length-up)+' terminé'+((items.length-up)>1?'s':'');
-  $('us-cards').innerHTML=items.length?items.map(function(o){
-    var h='<article class="card"><div class="card-top"><div><div class="meta">'+esc(SPORT[o.sp])+(o.x?' · '+o.x.time+' GMT':' · terminé')+'</div><div class="teams">'+esc(o.home)+' – '+esc(o.away)+'</div></div>';
-    if(o.sc){
-      var hw=o.sc.h>o.sc.a;
-      return h+'</div><div class="chips"><span class="chip">Score final <b>'+o.sc.h+' – '+o.sc.a+'</b></span><span class="chip">Vainqueur : <b>'+esc(hw?o.home:o.away)+'</b></span></div></article>';
+function renderLive(){
+  if(!Object.keys(state.M).length){$('live-status').textContent='';$('live-cards').innerHTML=empty(noData());return;}
+  var live=Object.keys(state.M).map(function(i){return state.M[i];}).filter(function(m){return m.k==='live'&&inGroup(m);}).sort(function(a,b){return a.t-b.t;});
+  var now=Date.now(),nxt=Object.keys(state.M).map(function(i){return state.M[i];}).filter(function(m){return m.k==='pre'&&m.t>now&&inGroup(m);}).sort(function(a,b){return a.t-b.t;})[0];
+  $('live-status').textContent=(live.length?live.length+' match'+(live.length>1?'s':'')+' en cours':'Aucun match en cours')+(nxt?'. Prochain coup d\'envoi à '+hhmm(nxt.t)+' ('+dayLabel(dkey(new Date(nxt.t)))+') : '+nxt.home+' – '+nxt.away+'.':'.');
+  $('live-cards').innerHTML=live.map(function(m){
+    var mo=modelFor(m,dayStart(dkey(new Date(m.t)))),gh=m.hg==null?0:m.hg,ga=m.ag==null?0:m.ag;
+    if(m.sp==='b'){
+      return '<article class="card"><div class="card-top"><div><div class="meta">'+esc(ml(m))+' · coup d\'envoi '+hhmm(m.t)+'</div>'+
+        '<div class="teams">'+esc(m.home)+' <span class="score">'+gh+' – '+ga+'</span> '+esc(m.away)+'</div></div><span class="badge live">En direct'+(m.clock?' '+esc(m.clock):'')+'</span></div>'+
+        '<div class="xg">Probabilités d\'avant-match</div>'+barBlock(mo.r)+'</article>';
     }
-    var x=o.x,home=x.ph>=x.pa,p=home?x.ph:x.pa,ok=p*100>=state.th,lv='';
-    USLIVE.forEach(function(L){if(L[0]===x.home&&L[1]===x.away)lv='<div class="chips"><span class="chip">En cours au relevé <b>'+L[2]+'</b> <small>'+L[3]+'</small></span></div>';});
-    return h+'</div><div class="bar" role="img" aria-label="Probabilités de victoire"><span class="b1" style="width:'+(x.ph*100)+'%"></span><span class="b2" style="width:'+(x.pa*100)+'%"></span></div>'+
-      '<div class="legend"><div><b>'+pc(x.ph)+'</b><small>Domicile</small></div><div><b>'+pc(x.pa)+'</b><small>Extérieur</small></div></div>'+
-      lv+'<div class="chips"><span class="chip'+(ok?' ok':'')+'">Favori : '+esc(home?x.home:x.away)+' <b>'+pc(p)+'</b> <small>éq. '+f2(1/p)+'</small></span></div></article>';
-  }).join(''):'<div class="panel"><p class="note">Aucun match pour ce jour.</p></div>';
-}
-
-var PSP=[['foot','⚽ Football'],['nba','🏀 Basket'],['nhl','🏒 Hockey sur glace'],['tennis','🎾 Tennis']];
-var TEN=[
-['ATP Challenger Yokohama, Japan Men Singles','Rio Noguchi','Maximus Jones','05:45','live',[[4, 4]]],
-['ATP Challenger Playford City, Australia Men Doubles','Ayeni A / Sousou C','Aguiard E / Hoole C','05:45','live',[[2, 6], [0, 1]]],
-['ATP Challenger Yokohama, Japan Men Singles','Constantin Bittoun Kouzmine','Yusuke Takahashi','05:50','live',[[1, 3]]],
-['ATP Challenger Yokohama, Japan Men Singles','Jie Cui','Benjamin Hassan','06:05','live',[[1, 4]]],
-['ATP Challenger Yokohama, Japan Men Singles','Ryuki Matsuda','Kaichi Uchida','02:40','final',[[6, 7], [3, 6]]],
-['ATP Challenger Playford City, Australia Men Singles','Edward Winter','Li Tu','02:55','final',[[6, 7], [6, 7]]],
-['ATP Challenger Playford City, Australia Men Singles','Zane Stevens','Hayden Jones','02:55','final',[[1, 6], [0, 6]]],
-['ATP Challenger Yokohama, Japan Men Singles','Hayato Matsuoka','adversaire non relevé','03:20','final',[[6, 4], [3, 6], [6, 7]]],
-['UTR PTT Melbourne Men 05','Luca Connaughton','Jeremy Beale','03:30','final',[[2, 6], [2, 6]]],
-['ATP Challenger Yokohama, Japan Men Singles','Yun Seong Chung','Finn Bass','03:45','final',[[6, 4], [4, 6], [6, 4]]],
-['ATP Challenger Playford City, Australia Men Singles','Isaac Becroft','Carl Emil Overbeck','03:50','final',[[3, 6], [6, 7]]],
-['ATP Challenger Playford City, Australia Men Singles','Harrison Satara','Jason Kubler','04:20','final',[[4, 6], [6, 3], [3, 6]]],
-['ATP Challenger Yokohama, Japan Men Singles','Yuta Shimizu','Taisei Ichikawa','04:20','final',[[6, 4], [6, 3]]],
-['ATP Challenger Playford City, Australia Men Singles','Dane Sweeny','Jake Delaney','05:10','final',[[6, 3], [6, 4]]],
-['ATP Challenger Playford City, Australia Men Singles','Omar Jasika','Evan Zhu','06:30','sched',[]],
-['ATP Challenger Yokohama, Japan Men Doubles','Jones L R / Sanada S','Masabayashi T / Matsuda K','07:00','sched',[]],
-['ATP Challenger Yokohama, Japan Men Singles','Niels McDonald','Luca Staeheli','07:15','sched',[]],
-['UTR Gyor W02','Barbora Matouskova','Vanda Vargova','07:30','sched',[]],
-['UTR Gyor W02','Julia Terziyska','Verica Zrnic','07:30','sched',[]]
-];
-function tSetP(a,b){if(a>=6&&a-b>=2||a===7)return 1;if(b>=6&&b-a>=2||b===7)return 0;if(a===6&&b===6)return .5;return .5*tSetP(a+1,b)+.5*tSetP(a,b+1);}
-function tV(x,y){if(x>=2)return 1;if(y>=2)return 0;if(x===1&&y===0)return .75;if(x===0&&y===1)return .25;return .5;}
-function tennisProb(sets){
-  var s1=0,s2=0,cur=[0,0];
-  for(var i=0;i<sets.length;i++){var a=sets[i][0],b=sets[i][1],done=(a>=6&&a-b>=2)||(b>=6&&b-a>=2)||a===7||b===7;
-    if(done&&i<sets.length-1||done&&(a+b>0)){if(a>b)s1++;else s2++;}else cur=[a,b];}
-  if(s1>=2)return 1;if(s2>=2)return 0;
-  var pc=tSetP(cur[0],cur[1]);return pc*tV(s1+1,s2)+(1-pc)*tV(s1,s2+1);
-}
-function tpred(t){
-  if(t[4]==='final')return '';
-  if(t[4]==='sched'||!t[5].length)return '<div class="chips"><span class="chip">Pronostic : aucun, le niveau des joueurs n\'est pas connu</span></div>';
-  var p=tennisProb(t[5]),f=p>=.5,pp=f?p:1-p;
-  return '<div class="chips"><span class="chip'+(pp*100>=state.th?' ok':'')+'">Pronostic au score actuel : '+esc(f?t[1]:t[2])+' <b>'+pc(pp)+'</b> <small>éq. '+f2(1/pp)+'</small></span></div>';
-}
-function renderTennis(){
-  var fin=TEN.filter(function(t){return t[4]==='final';}).length,lvn=TEN.filter(function(t){return t[4]==='live';}).length;
-  $('ten-sum').textContent=dayLabel('2026-11-24')+' · '+TEN.length+' matchs · '+lvn+' en cours au relevé, '+fin+' terminés, '+(TEN.length-fin-lvn)+' à venir';
-  $('ten-cards').innerHTML=TEN.slice().sort(function(a,b){return a[4]===b[4]?(a[3]<b[3]?-1:1):(a[4]==='live'?-1:(b[4]==='live'?1:(a[4]==='sched'?-1:1)));}).map(function(t){
-    var live=t[4]!=='final',sets=t[5].filter(function(x){return x[0]+x[1]>0||!live;}),ws=0,ls=0;
-    var fullSets=t[5].filter(function(x){return !(live&&false);});
-    t[5].forEach(function(x){if(x[0]>x[1])ws++;else if(x[1]>x[0])ls++;});
-    var w=live?'':(ws>ls?t[1]:t[2]);
-    return '<article class="card"><div class="card-top"><div><div class="meta">'+esc(t[0])+' · '+t[3]+' GMT</div><div class="teams">'+esc(t[1])+' – '+esc(t[2])+'</div></div></div>'+
-      '<div class="chips"><span class="chip">'+(t[4]==='sched'?'À venir':t[4]==='live'?'En cours':'Score final')+' <b>'+(t[5].length?t[5].map(function(x){return x[0]+'-'+x[1];}).join(' '):(t[4]==='sched'?'':'score non relevé'))+'</b></span>'+((live||!t[5].length)?'':'<span class="chip">Vainqueur : <b>'+esc(w)+'</b></span>')+'</div>'+tpred(t)+'</article>';
+    var min=estMin(m),f=Math.max(0.02,(90-Math.min(min,90))/90),r=finalModel(mo.lh*f,mo.la*f,gh,ga,true);
+    return '<article class="card"><div class="card-top"><div><div class="meta">'+esc(ml(m))+' · coup d\'envoi '+hhmm(m.t)+'</div>'+
+      '<div class="teams">'+esc(m.home)+' <span class="score">'+gh+' – '+ga+'</span> '+esc(m.away)+'</div></div><span class="badge live">En direct ~'+min+'e</span></div>'+
+      '<div class="xg">Score final le plus probable <b>'+r.score+'</b></div>'+barBlock(r)+marketBlock(r)+'</article>';
   }).join('');
 }
-
-var BG={};
-(function(){
-  var open='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 800" preserveAspectRatio="xMidYMid slice">';
-  var stripes='';for(var i=0;i<20;i++)stripes+='<rect x="0" y="'+(i*40)+'" width="400" height="40" fill="'+(i%2?'#3aa24a':'#2f8f3e')+'"/>';
-  var blades='<defs><pattern id="gb" width="9" height="9" patternUnits="userSpaceOnUse"><path d="M1 8 L2 3 M4 9 L5 4 M7 8 L6 2" stroke="#1f6e2c" stroke-width="1" opacity=".5" fill="none"/><path d="M2 6 L3 2 M6 7 L7 3" stroke="#7bd07f" stroke-width="1" opacity=".45" fill="none"/></pattern></defs>';
-  BG.turf=open+blades+stripes+'<rect width="400" height="800" fill="url(#gb)"/></svg>';
-  var L='stroke="#fff" stroke-width="3" fill="none" opacity=".9"';
-  var ball='<ellipse cx="262" cy="438" rx="40" ry="9" fill="#000" opacity=".25"/><g transform="translate(262 380)"><circle r="40" fill="#fff" stroke="#222" stroke-width="2"/><polygon points="0,-14 13,-4 8,12 -8,12 -13,-4" fill="#222"/><path d="M0 -14 L0 -40 M13 -4 L38 -12 M8 12 L24 32 M-8 12 L-24 32 M-13 -4 L-38 -12" stroke="#222" stroke-width="2"/></g>';
-  BG.foot=open+blades+stripes+'<rect width="400" height="800" fill="url(#gb)"/><rect x="24" y="24" width="352" height="752" '+L+'/><line x1="24" y1="400" x2="376" y2="400" '+L+'/><circle cx="200" cy="400" r="62" '+L+'/><rect x="110" y="24" width="180" height="110" '+L+'/><rect x="110" y="666" width="180" height="110" '+L+'/><rect x="155" y="24" width="90" height="42" '+L+'/><rect x="155" y="734" width="90" height="42" '+L+'/>'+ball+'</svg>';
-  var planks='';for(var j=0;j<20;j++)planks+='<rect x="'+(j*20)+'" y="0" width="20" height="800" fill="'+(j%2?'#c98a4b':'#d69c5c')+'"/>';
-  var W='stroke="#fff" stroke-width="3" fill="none" opacity=".9"';
-  var bb='<ellipse cx="150" cy="598" rx="44" ry="9" fill="#000" opacity=".25"/><g transform="translate(150 540)"><circle r="46" fill="#e2762b" stroke="#2b1a10" stroke-width="2"/><path d="M-46 0 H46 M0 -46 V46" stroke="#2b1a10" stroke-width="2.5"/><path d="M-32 -33 C-12 -12 -12 12 -32 33 M32 -33 C12 -12 12 12 32 33" stroke="#2b1a10" stroke-width="2.5" fill="none"/></g>';
-  BG.nba=open+planks+'<rect x="24" y="24" width="352" height="752" '+W+'/><rect x="140" y="24" width="120" height="190" fill="#a8412f" opacity=".7" stroke="#fff" stroke-width="3"/><circle cx="200" cy="214" r="60" '+W+'/><path d="M50 24 V110 A150 150 0 0 0 350 110 V24" '+W+'/><line x1="24" y1="400" x2="376" y2="400" '+W+'/><circle cx="200" cy="400" r="56" '+W+'/><rect x="140" y="586" width="120" height="190" fill="#a8412f" opacity=".7" stroke="#fff" stroke-width="3"/>'+bb+'</svg>';
-  var ice='<rect width="400" height="800" fill="#e8f3fa"/><rect x="0" y="0" width="400" height="800" fill="url(#ig)"/>';
-  var grad='<defs><linearGradient id="ig" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".7"/><stop offset="1" stop-color="#b9d6ea" stop-opacity=".5"/></linearGradient></defs>';
-  var fo=function(x,y){return '<circle cx="'+x+'" cy="'+y+'" r="42" stroke="#d33" stroke-width="3" fill="none"/><circle cx="'+x+'" cy="'+y+'" r="7" fill="#d33"/>';};
-  BG.nhl=open+grad+ice+'<rect x="20" y="20" width="360" height="760" rx="70" fill="none" stroke="#8aa6bd" stroke-width="5"/><line x1="20" y1="400" x2="380" y2="400" stroke="#d33" stroke-width="7"/><line x1="20" y1="270" x2="380" y2="270" stroke="#2a5db0" stroke-width="9"/><line x1="20" y1="530" x2="380" y2="530" stroke="#2a5db0" stroke-width="9"/><circle cx="200" cy="400" r="58" stroke="#2a5db0" stroke-width="3" fill="none"/>'+fo(105,180)+fo(295,180)+fo(105,620)+fo(295,620)+'<line x1="20" y1="90" x2="380" y2="90" stroke="#d33" stroke-width="3"/><line x1="20" y1="710" x2="380" y2="710" stroke="#d33" stroke-width="3"/><ellipse cx="262" cy="452" rx="44" ry="10" fill="#000" opacity=".18"/><g transform="translate(262 428)"><ellipse cx="0" cy="8" rx="38" ry="14" fill="#111"/><rect x="-38" y="-8" width="76" height="16" fill="#111"/><ellipse cx="0" cy="-8" rx="38" ry="14" fill="#2b2b2b"/></g></svg>';
-  var T='stroke="#fff" stroke-width="3" fill="none"';
-  BG.tennis=open+'<rect width="400" height="800" fill="#3f8f6b"/><rect x="50" y="90" width="300" height="620" fill="#2d6fa3"/><rect x="50" y="90" width="300" height="620" '+T+'/><line x1="80" y1="90" x2="80" y2="710" '+T+'/><line x1="320" y1="90" x2="320" y2="710" '+T+'/><line x1="80" y1="250" x2="320" y2="250" '+T+'/><line x1="80" y1="550" x2="320" y2="550" '+T+'/><line x1="200" y1="250" x2="200" y2="550" '+T+'/><line x1="42" y1="400" x2="358" y2="400" stroke="#e8eef2" stroke-width="6" stroke-dasharray="6 4"/><ellipse cx="262" cy="496" rx="30" ry="7" fill="#000" opacity=".25"/><g transform="translate(262 450)"><circle r="30" fill="#d8e63a" stroke="#9aa81f" stroke-width="2"/><path d="M-26 -14 C-8 -6 -8 6 -26 14 M26 -14 C8 -6 8 6 26 14" stroke="#fff" stroke-width="3" fill="none"/></g></svg>';
-})();
-function setBg(){
-  var k=(state.tab==='pre')?({foot:'foot',nba:'nba',nhl:'nhl',tennis:'tennis'}[state.preSp]||'turf'):'turf';
-  var el=$('bgfx');if(el.dataset.k!==k){el.dataset.k=k;el.innerHTML=BG[k];}
-}
-function renderPreSport(){
-  $('pre-sport').innerHTML=filterBtns(PSP,state.preSp,'data-psp');
-  $('pre-foot').hidden=state.preSp!=='foot';$('pre-us').hidden=!(state.preSp==='nba'||state.preSp==='nhl');$('pre-tennis').hidden=state.preSp!=='tennis';
-  $('thPanel').hidden=(state.tab==='res'||state.tab==='risk'||state.tab==='exact'||(state.tab==='pre'&&state.preSp==='tennis'));
-  setBg();
-}
-
-function normOver(line,mean,sd){var z=(line-mean)/sd,t=1/(1+0.2316419*Math.abs(z)),d=0.3989423*Math.exp(-z*z/2),pr=d*t*(0.3193815+t*(-0.3565638+t*(1.781478+t*(-1.821256+t*1.330274))));var cdf=z>0?1-pr:pr;return 1-cdf;}
-function halfWin(lh,la,f){var N=8,a=poisson(lh*f,N),b=poisson(la*f,N),w=0;for(var i=0;i<=N;i++)for(var j=0;j<i;j++)w+=a[i]*b[j];return w;}
-function extraList(x){
-  var lh=x.lh,la=x.la,w1=halfWin(lh,la,.44),w2=halfWin(lh,la,.56),one=1-(1-w1)*(1-w2),g1=1-Math.exp(-(lh+la)*.44);
-  var L=[
-    {g:'Mi-temps',l:'Domicile gagne la 1re mi-temps',p:w1,t:function(S,h,a){return S.ht[0]>S.ht[1];},v:function(S){return 'mi-temps '+S.ht[0]+'-'+S.ht[1];}},
-    {g:'Mi-temps',l:'Domicile gagne au moins une mi-temps',p:one,t:function(S,h,a){return S.ht[0]>S.ht[1]||(h-S.ht[0])>(a-S.ht[1]);},v:function(S,h,a){return 'MT1 '+S.ht[0]+'-'+S.ht[1]+', MT2 '+(h-S.ht[0])+'-'+(a-S.ht[1]);}},
-    {g:'Mi-temps',l:'Au moins 1 but en 1re mi-temps',p:g1,t:function(S){return S.ht[0]+S.ht[1]>=1;},v:function(S){return S.ht[0]+S.ht[1]+' but(s)';}}
-  ];
-  [['Plus de 8,5 corners',8.5,10.2,4.0,'c','corners'],['Plus de 3,5 cartons jaunes',3.5,4.0,1.9,'y','jaunes'],['Plus de 22,5 fautes',22.5,24,6.5,'f','fautes'],['Plus de 22,5 tirs',22.5,25,6.5,'s','tirs'],['Plus de 14,5 dégagements au but',14.5,16.5,5.0,'gk','dégagements']].forEach(function(g){
-    L.push({g:'Statistiques',l:g[0],p:normOver(g[1],g[2],g[3]),t:function(S){return S[g[4]][0]+S[g[4]][1]>g[1];},v:function(S){return (S[g[4]][0]+S[g[4]][1])+' '+g[5];}});
-  });
-  return L;
-}
-function otherOpts(x){
-  function ch(l,p){return '<span class="chip">'+l+' <b>'+pc(p)+'</b> <small>éq. '+f2(1/p)+'</small></span>';}
-  var L=extraList(x);
-  return '<details class="opts"><summary>Autres options de paris</summary>'+
-    '<h4>Mi-temps (modèle de buts, 44 % des buts en 1re mi-temps)</h4><div class="chips">'+L.filter(function(o){return o.g==='Mi-temps';}).map(function(o){return ch(o.l,o.p);}).join('')+'</div>'+
-    '<h4>Statistiques (estimation générique de championnat, fiabilité faible)</h4><div class="chips">'+L.filter(function(o){return o.g==='Statistiques';}).map(function(o){return ch(o.l,o.p);}).join('')+'</div>'+
-    '<p class="note" style="margin-top:8px">Ces options ne sont pas dans le coupon automatique. Elles sont vérifiées dans l\'onglet Résultats (vert = passée, rouge = ratée) pour les matchs dont les statistiques ont été relevées. Les statistiques utilisent des moyennes générales, pas les équipes du match : ne vous y fiez pas comme à un vrai pronostic.</p></details>';
-}
-function exactTop(x){
-  var N=8,a=poisson(x.lh,N),b=poisson(x.la,N),L=[];
-  for(var i=0;i<=N;i++)for(var j=0;j<=N;j++)L.push({h:i,a:j,p:a[i]*b[j]});
-  return L.sort(function(u,v){return v.p-u.p;}).slice(0,3);
-}
-function renderExact(){
-  $('ex-days').innerHTML=filterBtns(PRE_DAYS.map(function(d){return [d,dayLabel(d)];}),state.exDay,'data-xday');
-  $('ex-title').textContent='Score exact du '+dayLabel(state.exDay);
-  var list=PRE.filter(function(x){return x.day===state.exDay;}).map(function(x){var t=exactTop(x);return {x:x,t:t};})
-    .sort(function(u,v){return v.t[0].p-u.t[0].p;}).slice(0,3);
-  var prod=1,w=0,l=0,q=0;
-  list.forEach(function(o){var sc=scoreFor(o.x);o.sc=sc;o.st=sc?((sc.h===o.t[0].h&&sc.a===o.t[0].a)?'win':'lose'):'wait';prod*=o.t[0].p;if(o.st==='win')w++;else if(o.st==='lose')l++;else q++;});
-  $('ex-cards').innerHTML=list.map(function(o){
-    var x=o.x,t=o.t;
-    return '<article class="card"><div class="card-top"><div><div class="meta">'+esc(LG[x.lg])+' · '+x.time+' GMT</div><div class="teams">'+esc(x.home)+' – '+esc(x.away)+'</div></div>'+markHTML(o.st,false)+'</div>'+
-      '<div class="chips"><span class="chip ok">Score proposé <span class="big-score">'+t[0].h+' – '+t[0].a+'</span> <b>'+(t[0].p*100).toFixed(1).replace('.',',')+' %</b> <small>éq. '+f2(1/t[0].p)+'</small></span></div>'+
-      '<div class="chips">'+t.slice(1).map(function(z){return '<span class="chip">Autre : '+z.h+' – '+z.a+' <b>'+(z.p*100).toFixed(1).replace('.',',')+' %</b></span>';}).join('')+(o.sc?'<span class="chip">Score final <b>'+o.sc.h+' – '+o.sc.a+'</b></span>':'')+'</div></article>';
-  }).join('');
-  if(!list.length){$('ex-combo').innerHTML='<p class="note">Aucun match relevé pour ce jour.</p>';return;}
-  var st=l>0?'lose':(w===list.length?'win':'wait');
-  var line=st==='lose'?'Perdu : '+l+' score'+(l>1?'s':'')+' raté'+(l>1?'s':'')+'.':st==='win'?'Validé : les '+list.length+' scores exacts sont passés.':'En cours : '+w+' validé'+(w>1?'s':'')+', '+q+' en attente.';
-  $('ex-combo').innerHTML='<div class="verdict"><div><h2>Le coupon score exact</h2><p class="note" style="margin-top:4px">'+line+'</p></div>'+markHTML(st,true)+'</div>'+
-    '<div class="stats"><div class="stat"><b>'+(prod*100).toFixed(2).replace('.',',')+' %</b><small>chance que tous passent</small></div><div class="stat"><b>'+f2(1/prod)+'</b><small>cote combinée équitable</small></div></div>';
-}
-
-var AI_BUSY=false,AI_PRO=[],AI_RISK=[];
-function teamForm(team,before){
-  var r=RES.filter(function(x){return (x[1]===team||x[2]===team)&&(!before||x[3]<before);}).sort(function(a,b){return a[3]<b[3]?-1:a[3]>b[3]?1:0;}).slice(-5);
-  return r.map(function(x){var h=x[1]===team,gf=h?x[4]:x[5],ga=h?x[5]:x[4];return (gf>ga?'V':gf<ga?'D':'N')+' '+gf+'-'+ga+(h?' (dom.)':' (ext.)')+' contre '+(h?x[2]:x[1]);}).join(' ; ')||'aucun résultat récent connu';
-}
-function matchFacts(x){
-  return x.home+' – '+x.away+' ('+LG[x.lg]+', '+x.day+' '+x.time+' GMT)\n'+
-    'Marchés du modèle (probabilités) : '+x.r.markets.slice(0,8).map(function(m){return m.l+' '+pc(m.p);}).join(' ; ')+'\n'+
-    'Buts attendus : '+x.home+' '+x.lh.toFixed(2)+', '+x.away+' '+x.la.toFixed(2)+'\n'+
-    'Forme de '+x.home+' : '+teamForm(x.home,x.day)+'\n'+'Forme de '+x.away+' : '+teamForm(x.away,x.day);
-}
-var AI_RULES="Tu es un analyste football prudent. Appuie-toi UNIQUEMENT sur les données ci-dessous : n'invente aucune statistique, blessure, composition ou cote. Réponds en français, clairement, sans promettre de résultat. ";
-function aiRun(prompt,out,btn){
-  if(AI_BUSY)return;
-  var c=window.claude;
-  out.hidden=false;
-  if(!c||!c.use){out.textContent="L'analyse IA fonctionne uniquement quand la page est ouverte dans Claude.";return;}
-  AI_BUSY=true;btn.disabled=true;out.textContent='Analyse en cours…';
-  var done=function(){AI_BUSY=false;btn.disabled=false;};
-  c.use('sample').then(function(sample){
-    if(!sample){out.textContent="L'analyse IA n'est pas disponible dans cette vue.";return;}
-    return sample(prompt,{modelTier:'default',cache:false,onText:function(t){out.textContent=t.text;}}).then(function(r){out.textContent=r.text;});
-  }).catch(function(e){
-    out.textContent=(e&&e.code==='not_granted')?"Accès à l'IA refusé. Vous pouvez réessayer et accepter.":(e&&e.code==='rate_limited')?"Trop de demandes, réessayez dans une minute.":"L'analyse IA a échoué, réessayez.";
-  }).then(done,done);
-}
-function aiBtn(i){return '<button type="button" class="ai-btn" data-ai="m'+i+'">🤖 Analyse IA</button><div class="ai-out" hidden></div>';}
-function aiCouponBtn(kind){return '<button type="button" class="ai-btn" data-ai="'+kind+'">🤖 Analyse IA du coupon</button><div class="ai-out" hidden></div>';}
-document.addEventListener('click',function(e){
-  var b=e.target.closest&&e.target.closest('.ai-btn');if(!b)return;
-  var k=b.getAttribute('data-ai'),out=b.nextElementSibling,prompt;
-  if(k[0]==='m'){
-    var x=PRE[parseInt(k.slice(1),10)];if(!x)return;
-    prompt=AI_RULES+"Analyse ce match en 120 mots maximum : (1) la lecture du match, en vérifiant la cohérence entre les probabilités, les buts attendus et la forme récente ; (2) un point de vigilance ; (3) un verdict d'une ligne : le marché parmi ceux listés qui te semble le plus cohérent, ou « à éviter ». Si la forme est inconnue, dis-le.\n\n"+matchFacts(x);
-  }else if(k==='pro'){
-    if(!AI_PRO.length)return;
-    prompt=AI_RULES+"Voici un coupon de "+AI_PRO.length+" pronostics. En 200 mots maximum : vérifie la cohérence du coupon (pronostics corrélés, maillon fragile, effet de cumul), classe chaque pronostic en « solide », « acceptable » ou « fragile » avec une raison courte, puis dis lequel remplacer, uniquement par un autre marché déjà listé pour le même match.\n\n"+AI_PRO.map(function(o,i){return (i+1)+') Pronostic retenu : '+o.k.l+' '+pc(o.k.p)+'\n'+matchFacts(o.x);}).join('\n\n');
-  }else if(k==='risk'){
-    if(!AI_RISK.length)return;
-    var pr=1;AI_RISK.forEach(function(o){pr*=o.p;});
-    prompt=AI_RULES+"Voici un coupon risqué de "+AI_RISK.length+" pronostics dont la cote équitable combinée est d'environ "+f2(1/pr)+" ("+pc(pr)+" de chances que tout passe). En 180 mots maximum : dis si le coupon est cohérent, quel pronostic est le plus fragile, et rappelle honnêtement le risque. N'ajoute aucun autre match.\n\n"+AI_RISK.map(function(o,i){return (i+1)+') '+o.name+' ('+o.meta+') : '+o.label+' '+pc(o.p);}).join('\n');
-  }else return;
-  aiRun(prompt,out,b);
-});
-if(!window.claude)document.documentElement.classList.add('noai');
-function renderStale(){
-  var t=new Date().toISOString().slice(0,10),el=$('stale');
-  if(PRE_DAYS.indexOf(t)<0){
-    el.hidden=false;
-    el.textContent='Les matchs affichés vont du '+dayLabel(PRE_DAYS[0])+' au '+dayLabel(PRE_DAYS[PRE_DAYS.length-1])+'. Aucun match relevé pour aujourd\'hui : demandez à Claude une mise à jour pour recharger les matchs du jour.';
+function renderRes(){
+  if(!Object.keys(state.M).length){$('res-stats').innerHTML='<p class="note">'+noData()+'</p>';$('res-list').innerHTML='';return;}
+  var list=dayMatches(state.day).filter(function(m){return m.k==='done'&&m.hg!=null;});
+  if(!list.length){$('res-stats').innerHTML='<p class="note">Aucun résultat pour ce jour et ces compétitions.</p>';$('res-list').innerHTML='';return;}
+  var n=list.length,html='<h2>'+dayLabel(state.day)+' : '+n+' match'+(n>1?'s':'')+'</h2>';
+  var fb=list.filter(function(m){return m.sp==='f';});
+  if(fb.length){
+    var g=0,hw=0,dr=0,aw=0,bt=0,o25=0;
+    fb.forEach(function(m){g+=m.hg+m.ag;if(m.hg>m.ag)hw++;else if(m.hg===m.ag)dr++;else aw++;if(m.hg>0&&m.ag>0)bt++;if(m.hg+m.ag>=3)o25++;});
+    html+='<div class="stats"><div class="stat"><b>'+g+'</b><small>buts en football ('+f2(g/fb.length)+' par match)</small></div>'+
+      '<div class="stat"><b>'+hw+' · '+dr+' · '+aw+'</b><small>domicile · nuls · extérieur</small></div>'+
+      '<div class="stat"><b>'+bt+' / '+fb.length+'</b><small>les deux équipes ont marqué</small></div>'+
+      '<div class="stat"><b>'+o25+' / '+fb.length+'</b><small>plus de 2,5 buts</small></div></div>';
   }
+  $('res-stats').innerHTML=html;
+  $('res-list').innerHTML=list.map(function(m){
+    return '<div class="res"><div class="meta">'+esc(ml(m))+'</div><div class="res-row"><span>'+esc(m.home)+'</span><b>'+m.hg+' – '+m.ag+'</b><span class="r">'+esc(m.away)+'</span></div></div>';
+  }).join('');
 }
-function renderAll(){
+function render(){
   $('th').value=state.th;$('th-val').textContent=state.th+' %';
-  renderPro();renderExact();renderRisk();renderPre();renderUS();renderTennis();renderPreSport();renderLive();renderMine();renderRes();
-}
-function setTab(t){
-  state.tab=t;
-  ['pro','exact','risk','pre','live','res','mine'].forEach(function(k){$('p-'+k).hidden=(k!==t);});
-  Array.prototype.forEach.call(document.querySelectorAll('.tab'),function(b){b.setAttribute('aria-selected',String(b.dataset.tab===t));});
-  renderPreSport();
+  renderStatus();renderDays();renderPro();renderPre();renderLive();renderRes();
+  ['pro','pre','live','res'].forEach(function(k){$('p-'+k).hidden=(k!==state.tab);});
+  Array.prototype.forEach.call(document.querySelectorAll('.tab'),function(b){b.setAttribute('aria-selected',String(b.dataset.tab===state.tab));});
+  $('thPanel').hidden=(state.tab==='res');
+  $('days').hidden=(state.tab==='live');
 }
 
-function num(id,def){var v=parseFloat(String($(id).value).replace(',','.'));return isFinite(v)?v:def;}
-function numOpt(id){var v=parseFloat(String($(id).value).replace(',','.'));return isFinite(v)&&v>1?v:null;}
-function fill(m){
-  $('f-league').value=m.league||'';$('f-date').value=m.date||'';$('f-home').value=m.home;$('f-away').value=m.away;
-  $('f-n').value=m.n;$('f-hf').value=String(m.hf).replace('.',',');$('f-hc').value=String(m.hc).replace('.',',');
-  $('f-af').value=String(m.af).replace('.',',');$('f-ac').value=String(m.ac).replace('.',',');
-  $('f-lgh').value=String(m.lgH).replace('.',',');$('f-lga').value=String(m.lgA).replace('.',',');
-  $('f-o1').value=m.o1?String(m.o1).replace('.',','):'';$('f-ox').value=m.ox?String(m.ox).replace('.',','):'';$('f-o2').value=m.o2?String(m.o2).replace('.',','):'';
-}
-function endEdit(){
-  state.editing=null;$('form').reset();
-  $('f-hf').value='1,5';$('f-hc').value='1,2';$('f-af').value='1,2';$('f-ac').value='1,5';$('f-n').value='10';$('f-lgh').value='1,5';$('f-lga').value='1,2';
-  $('formTitle').textContent='Ajouter un match';$('saveBtn').textContent='Analyser ce match';$('cancelBtn').hidden=true;
-}
+/* ---------- Événements ---------- */
+$('keyBtn').addEventListener('click',function(){$('keyPanel').hidden=!$('keyPanel').hidden;if(!$('keyPanel').hidden)$('key').focus();});
+$('keySave').addEventListener('click',function(){
+  var v=$('key').value.replace(/\s+/g,'');if(!v)return;
+  state.key=v;store(K_KEY,v);$('key').value='';$('keyPanel').hidden=true;state.tried={};startWithCheck();
+});
+$('keyDel').addEventListener('click',function(){
+  state.key='';try{localStorage.removeItem(K_KEY);localStorage.removeItem(K_CACHE);}catch(e){}
+  state.M={};state.fetched={};state.tried={};state.updated=null;state.errs=[];state.ver++;clearTimeout(timer);render();
+});
+document.querySelector('.tabs').addEventListener('click',function(e){var b=e.target.closest('.tab');if(b){state.tab=b.dataset.tab;render();}});
+$('th').addEventListener('input',function(e){state.th=parseInt(e.target.value,10);store(K_TH,String(state.th));render();});
+$('days').addEventListener('click',function(e){var b=e.target.closest('button');if(b&&b.dataset.day){state.day=b.dataset.day;render();ensure();}});
+$('grp').addEventListener('click',function(e){var b=e.target.closest('button');if(b&&b.dataset.grp){state.grp=b.dataset.grp;render();ensure();}});
+document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible'&&state.key)ensure();});
+setInterval(function(){if(document.visibilityState==='visible')render();},30000);
 
-document.querySelector('.tabs').addEventListener('click',function(e){var b=e.target.closest('.tab');if(b)setTab(b.dataset.tab);});
-$('th').addEventListener('input',function(e){state.th=parseInt(e.target.value,10);save();$('th-val').textContent=state.th+' %';renderPro();renderPre();renderUS();renderLive();renderMine();});
-['live-sel','live-min','live-gh','live-ga'].forEach(function(id){$(id).addEventListener('input',renderLive);});
-$('p-pre').addEventListener('click',function(e){
-  var b=e.target.closest('button');if(!b)return;
-  if(b.dataset.psp){state.preSp=b.dataset.psp;renderPreSport();renderUS();}
-  else if(b.dataset.uday){state.usDay=b.dataset.uday;renderUS();}
-  else if(b.dataset.pday){state.preDay=b.dataset.pday;renderPre();}
-  else if(b.dataset.plg){state.preLg=b.dataset.plg;renderPre();}
-});
-$('p-live').addEventListener('click',function(e){
-  var b=e.target.closest('button');if(!b||b.dataset.live===undefined)return;
-  loadLive(parseInt(b.dataset.live,10));renderLive();
-});
-$('p-exact').addEventListener('click',function(e){var b=e.target.closest('button');if(b&&b.dataset.xday){state.exDay=b.dataset.xday;renderExact();}});
-$('p-risk').addEventListener('click',function(e){var b=e.target.closest('button');if(b&&b.dataset.rday){state.riskDay=b.dataset.rday;renderRisk();}});
-$('p-pro').addEventListener('click',function(e){
-  var b=e.target.closest('button');if(!b||!b.dataset.dday)return;
-  state.proDay=b.dataset.dday;renderPro();
-});
-$('p-pro').addEventListener('input',function(e){
-  var t=e.target;if(!t.dataset||!t.dataset.sc)return;
-  var i=t.dataset.i,h=$('sc-h-'+i).value.trim(),a=$('sc-a-'+i).value.trim();
-  if(h===''&&a===''){delete state.scores[t.dataset.sc];}
-  else{var hv=parseInt(h,10),av=parseInt(a,10);state.scores[t.dataset.sc]=[isNaN(hv)?null:hv,isNaN(av)?null:av];}
-  saveScores();
-  var id=t.id,pos=t.selectionStart;renderPro();
-  var n=$(id);if(n){n.focus();try{n.setSelectionRange(pos,pos);}catch(x){}}
-});
-$('p-res').addEventListener('click',function(e){
-  var b=e.target.closest('button');if(!b)return;
-  if(b.dataset.rday){state.resDay=b.dataset.rday;renderRes();}
-  else if(b.dataset.rlg){state.resLg=b.dataset.rlg;renderRes();}
-});
-$('form').addEventListener('submit',function(e){
-  e.preventDefault();
-  var home=$('f-home').value.trim(),away=$('f-away').value.trim();
-  if(!home||!away){return;}
-  var m={id:state.editing||('m'+Date.now()),league:$('f-league').value.trim(),date:$('f-date').value.trim(),home:home,away:away,
-    n:Math.max(1,Math.round(num('f-n',10))),hf:Math.max(0,num('f-hf',1.5)),hc:Math.max(0,num('f-hc',1.2)),af:Math.max(0,num('f-af',1.2)),ac:Math.max(0,num('f-ac',1.5)),
-    lgH:Math.max(.3,num('f-lgh',1.5)),lgA:Math.max(.3,num('f-lga',1.2)),o1:numOpt('f-o1'),ox:numOpt('f-ox'),o2:numOpt('f-o2')};
-  var i=state.matches.findIndex(function(x){return x.id===m.id;});
-  if(i>=0)state.matches[i]=m;else state.matches.push(m);
-  save();endEdit();renderMine();
-});
-$('cancelBtn').addEventListener('click',endEdit);
-$('resetBtn').addEventListener('click',function(){state.matches=SAMPLE.map(function(x){return Object.assign({},x);});endEdit();save();renderMine();});
-var armed=null,armTimer=null;
-$('cards').addEventListener('click',function(e){
-  var b=e.target.closest('button');if(!b)return;
-  if(b.dataset.edit){
-    var m=state.matches.find(function(x){return x.id===b.dataset.edit;});if(!m)return;
-    state.editing=m.id;fill(m);$('formTitle').textContent='Modifier le match';$('saveBtn').textContent='Enregistrer les modifications';$('cancelBtn').hidden=false;
-    $('formBox').open=true;$('formBox').scrollIntoView({behavior:'smooth',block:'start'});
-  }else if(b.dataset.del){
-    if(armed===b.dataset.del){state.matches=state.matches.filter(function(x){return x.id!==armed;});armed=null;save();renderMine();}
-    else{armed=b.dataset.del;b.textContent='Confirmer la suppression';clearTimeout(armTimer);armTimer=setTimeout(function(){armed=null;renderMine();},3000);}
-  }
-});
-(function(){var i=document.getElementById('intro');function done(){i.classList.add('out');setTimeout(function(){if(i.parentNode)i.parentNode.removeChild(i);},600);}setTimeout(done,2600);i.addEventListener('click',done);})();
-load();loadScores();initLive();renderLiveStatus();renderAll();renderStale();setTab('pro');
+/* ---------- Démarrage ---------- */
+(function init(){
+  var k=read(K_KEY);if(k)state.key=k;
+  var th=parseInt(read(K_TH),10);if(th>=50&&th<=95)state.th=th;
+  loadCache();
+  $('keyPanel').hidden=!!state.key;
+  render();
+  if(state.key)startWithCheck();
+})();
+})();
 </script>
-
 </body>
 </html>
