@@ -3,6 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;font:14px system-ui,sans-serif}
+img{max-width:100%}
+</style>
 <title>LGE Analyse foot</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap">
 <style>
@@ -30,6 +35,10 @@
 }
 *{box-sizing:border-box}
 [hidden]{display:none!important}
+.ai-btn{background:var(--accent-soft);color:var(--fg);border:1px solid var(--line);border-radius:10px;padding:8px 12px;font:inherit;font-weight:600;cursor:pointer;margin-top:8px}
+.ai-btn:disabled{opacity:.6;cursor:progress}
+.ai-out{white-space:pre-wrap;font-size:.9rem;line-height:1.5;border-left:3px solid var(--accent);padding:6px 10px;margin-top:8px}
+.noai .ai-btn,.noai .ai-out{display:none}
 .opts{border-top:1px solid var(--line);padding-top:8px}
 .opts summary{cursor:pointer;font-weight:600;font-size:.88rem}
 .opts .chips{margin-top:8px}
@@ -133,6 +142,8 @@ button.danger{color:var(--warn)}
 @media (max-width:360px){.grid,.grid3{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:no-preference){.bar span{transition:width .3s}}
 </style>
+</head>
+<body>
 
 <div id="intro" aria-hidden="true"><div class="balls"><span>⚽</span><span>🏀</span><span>🏒</span><span>🎾</span></div><h2>LGE Analyse foot</h2><p>Football · Basket · Hockey · Tennis</p></div>
 <div class="bgfx" id="bgfx" aria-hidden="true"></div>
@@ -215,7 +226,7 @@ button.danger{color:var(--warn)}
     <div class="cards" id="pre-tennis" hidden>
       <p class="summary" id="ten-sum"></p>
       <div class="cards" id="ten-cards"></div>
-      <p class="note">Tennis : la source de données ne fournit pas de probabilités de victoire, je n'en affiche donc pas plutôt que d'en inventer. Vous voyez les matchs du jour avec leurs scores (relevé du 24 nov. 2026, 06:25 GMT), surtout des tournois Challenger ATP et la Billie Jean King Cup. Les matchs « en cours » le sont au moment du relevé.</p>
+      <p class="note">Tennis : la source ne fournit ni classement ni probabilités. Pour un match en cours, le pronostic est calculé d'après le score actuel (meilleur des 3 sets, joueurs supposés de même niveau) : c'est une estimation grossière. Pour un match à venir, je ne donne pas de pronostic plutôt que d'en inventer un. Vous voyez les matchs du jour avec leurs scores (relevé du 24 nov. 2026, 06:25 GMT), surtout des tournois Challenger ATP et la Billie Jean King Cup. Les matchs « en cours » le sont au moment du relevé.</p>
     </div>
   </section>
 
@@ -643,7 +654,7 @@ function renderPre(){
     return '<article class="card"><div class="meta">'+esc(LG[x.lg])+' · '+x.time+' GMT</div>'+
       '<div class="teams">'+esc(x.home)+' – '+esc(x.away)+'</div>'+
       '<div class="xg">Buts attendus (estimés) <b>'+f2(r.lh)+'</b> – <b>'+f2(r.la)+'</b></div>'+
-      barBlock(r)+marketBlock(r)+otherOpts(x)+'</article>';
+      barBlock(r)+marketBlock(r)+otherOpts(x)+aiBtn(x.i)+'</article>';
   }).join(''):'<div class="panel"><p class="note">Aucun match ce jour-là pour ce championnat.</p></div>';
 }
 
@@ -758,6 +769,7 @@ function renderPro(){
   $('pro-title').textContent='Mes pronostics du '+dayLabel(state.proDay);
   var list=PRE.filter(function(x){return x.day===state.proDay;}).map(function(x){return {x:x,k:x.r.markets[0]};})
     .sort(function(a,b){return b.k.p-a.k.p;}).slice(0,5);
+  AI_PRO=list.map(function(o){return {x:o.x,k:o.k};});
   var prod=1,wins=0,losses=0,wait=0;
   list.forEach(function(o){
     prod*=o.k.p;
@@ -775,7 +787,7 @@ function renderPro(){
       '<div class="score-row"><span>Score final</span>'+
       '<input type="text" inputmode="numeric" id="sc-h-'+x.i+'" data-sc="'+esc(scoreKey(x))+'" data-i="'+x.i+'" value="'+vh+'" aria-label="Buts '+esc(x.home)+'">'+
       '<span>–</span><input type="text" inputmode="numeric" id="sc-a-'+x.i+'" data-sc="'+esc(scoreKey(x))+'" data-i="'+x.i+'" value="'+va+'" aria-label="Buts '+esc(x.away)+'">'+
-      (o.sc&&o.sc.src==='data'?'<span>(score issu des données)</span>':'')+(o.sc?'':liveNote(x))+'</div>'+otherOpts(x)+'</article>';
+      (o.sc&&o.sc.src==='data'?'<span>(score issu des données)</span>':'')+(o.sc?'':liveNote(x))+'</div>'+otherOpts(x)+aiBtn(x.i)+'</article>';
   }).join('');
   if(!list.length){$('pro-combo').innerHTML='<p class="note">Aucun match relevé pour ce jour.</p>';return;}
   var st=losses>0?'lose':(wins===list.length?'win':'wait');
@@ -785,7 +797,7 @@ function renderPro(){
   $('pro-combo').innerHTML='<div class="verdict"><div><h2>Le coupon de '+list.length+'</h2><p class="note" style="margin-top:4px">'+line+'</p></div>'+markHTML(st,true)+'</div>'+
     '<div class="stats"><div class="stat"><b>'+pc(prod)+'</b><small>chance que tous passent</small></div>'+
     '<div class="stat"><b>'+f2(1/prod)+'</b><small>cote combinée équitable</small></div></div>'+
-    '<p class="note">En combiné, les probabilités se multiplient : même des pronostics à 75 % ne passent tous ensemble que dans une minorité des cas. Ce sont des estimations, pas des garanties.</p>';
+    '<p class="note">En combiné, les probabilités se multiplient : même des pronostics à 75 % ne passent tous ensemble que dans une minorité des cas. Ce sont des estimations, pas des garanties.</p>'+aiCouponBtn('pro');
 }
 
 function riskCands(day){
@@ -813,6 +825,7 @@ function renderRisk(){
   $('risk-days').innerHTML=filterBtns(ALL_DAYS.map(function(d){return [d,dayLabel(d)];}),state.riskDay,'data-rday');
   $('risk-title').textContent='Pronostic risqué du '+dayLabel(state.riskDay);
   var list=riskPick(riskCands(state.riskDay)),prod=1,w=0,l=0,q=0;
+  AI_RISK=list;
   list.forEach(function(o){prod*=o.p;if(o.st==='win')w++;else if(o.st==='lose')l++;else q++;});
   $('risk-cards').innerHTML=list.map(function(o){
     return '<article class="card"><div class="card-top"><div><div class="meta">'+esc(o.meta)+'</div><div class="teams">'+esc(o.name)+'</div></div>'+markHTML(o.st,false)+'</div>'+
@@ -823,7 +836,7 @@ function renderRisk(){
   var line=st==='lose'?'Coupon perdu : '+l+' pronostic'+(l>1?'s':'')+' raté'+(l>1?'s':'')+'.':st==='win'?'Coupon validé : les '+list.length+' pronostics sont passés.':'Coupon en cours : '+w+' validé'+(w>1?'s':'')+', '+q+' en attente. Les scores se remplissent avec le prochain relevé.';
   $('risk-combo').innerHTML='<div class="verdict"><div><h2>Le coupon risqué de '+list.length+'</h2><p class="note" style="margin-top:4px">'+line+'</p></div>'+markHTML(st,true)+'</div>'+
     '<div class="stats"><div class="stat"><b>'+pc(prod)+'</b><small>chance que tous passent</small></div><div class="stat"><b>'+f2(1/prod)+'</b><small>cote combinée équitable</small></div></div>'+
-    (list.length<5?'<p class="note">Moins de 5 matchs relevés ce jour : le coupon est incomplet.</p>':'');
+    (list.length<5?'<p class="note">Moins de 5 matchs relevés ce jour : le coupon est incomplet.</p>':'')+aiCouponBtn('risk');
 }
 function renderUS(){
   var uv=futureDays(US_DAYS);if(uv.indexOf(state.usDay)<0)state.usDay=uv[0];
@@ -874,6 +887,21 @@ var TEN=[
 ['UTR Gyor W02','Barbora Matouskova','Vanda Vargova','07:30','sched',[]],
 ['UTR Gyor W02','Julia Terziyska','Verica Zrnic','07:30','sched',[]]
 ];
+function tSetP(a,b){if(a>=6&&a-b>=2||a===7)return 1;if(b>=6&&b-a>=2||b===7)return 0;if(a===6&&b===6)return .5;return .5*tSetP(a+1,b)+.5*tSetP(a,b+1);}
+function tV(x,y){if(x>=2)return 1;if(y>=2)return 0;if(x===1&&y===0)return .75;if(x===0&&y===1)return .25;return .5;}
+function tennisProb(sets){
+  var s1=0,s2=0,cur=[0,0];
+  for(var i=0;i<sets.length;i++){var a=sets[i][0],b=sets[i][1],done=(a>=6&&a-b>=2)||(b>=6&&b-a>=2)||a===7||b===7;
+    if(done&&i<sets.length-1||done&&(a+b>0)){if(a>b)s1++;else s2++;}else cur=[a,b];}
+  if(s1>=2)return 1;if(s2>=2)return 0;
+  var pc=tSetP(cur[0],cur[1]);return pc*tV(s1+1,s2)+(1-pc)*tV(s1,s2+1);
+}
+function tpred(t){
+  if(t[4]==='final')return '';
+  if(t[4]==='sched'||!t[5].length)return '<div class="chips"><span class="chip">Pronostic : aucun, le niveau des joueurs n\'est pas connu</span></div>';
+  var p=tennisProb(t[5]),f=p>=.5,pp=f?p:1-p;
+  return '<div class="chips"><span class="chip'+(pp*100>=state.th?' ok':'')+'">Pronostic au score actuel : '+esc(f?t[1]:t[2])+' <b>'+pc(pp)+'</b> <small>éq. '+f2(1/pp)+'</small></span></div>';
+}
 function renderTennis(){
   var fin=TEN.filter(function(t){return t[4]==='final';}).length,lvn=TEN.filter(function(t){return t[4]==='live';}).length;
   $('ten-sum').textContent=dayLabel('2026-11-24')+' · '+TEN.length+' matchs · '+lvn+' en cours au relevé, '+fin+' terminés, '+(TEN.length-fin-lvn)+' à venir';
@@ -883,7 +911,7 @@ function renderTennis(){
     t[5].forEach(function(x){if(x[0]>x[1])ws++;else if(x[1]>x[0])ls++;});
     var w=live?'':(ws>ls?t[1]:t[2]);
     return '<article class="card"><div class="card-top"><div><div class="meta">'+esc(t[0])+' · '+t[3]+' GMT</div><div class="teams">'+esc(t[1])+' – '+esc(t[2])+'</div></div></div>'+
-      '<div class="chips"><span class="chip">'+(t[4]==='sched'?'À venir':t[4]==='live'?'En cours':'Score final')+' <b>'+(t[5].length?t[5].map(function(x){return x[0]+'-'+x[1];}).join(' '):(t[4]==='sched'?'':'score non relevé'))+'</b></span>'+((live||!t[5].length)?'':'<span class="chip">Vainqueur : <b>'+esc(w)+'</b></span>')+'</div></article>';
+      '<div class="chips"><span class="chip">'+(t[4]==='sched'?'À venir':t[4]==='live'?'En cours':'Score final')+' <b>'+(t[5].length?t[5].map(function(x){return x[0]+'-'+x[1];}).join(' '):(t[4]==='sched'?'':'score non relevé'))+'</b></span>'+((live||!t[5].length)?'':'<span class="chip">Vainqueur : <b>'+esc(w)+'</b></span>')+'</div>'+tpred(t)+'</article>';
   }).join('');
 }
 
@@ -964,6 +992,52 @@ function renderExact(){
   $('ex-combo').innerHTML='<div class="verdict"><div><h2>Le coupon score exact</h2><p class="note" style="margin-top:4px">'+line+'</p></div>'+markHTML(st,true)+'</div>'+
     '<div class="stats"><div class="stat"><b>'+(prod*100).toFixed(2).replace('.',',')+' %</b><small>chance que tous passent</small></div><div class="stat"><b>'+f2(1/prod)+'</b><small>cote combinée équitable</small></div></div>';
 }
+
+var AI_BUSY=false,AI_PRO=[],AI_RISK=[];
+function teamForm(team,before){
+  var r=RES.filter(function(x){return (x[1]===team||x[2]===team)&&(!before||x[3]<before);}).sort(function(a,b){return a[3]<b[3]?-1:a[3]>b[3]?1:0;}).slice(-5);
+  return r.map(function(x){var h=x[1]===team,gf=h?x[4]:x[5],ga=h?x[5]:x[4];return (gf>ga?'V':gf<ga?'D':'N')+' '+gf+'-'+ga+(h?' (dom.)':' (ext.)')+' contre '+(h?x[2]:x[1]);}).join(' ; ')||'aucun résultat récent connu';
+}
+function matchFacts(x){
+  return x.home+' – '+x.away+' ('+LG[x.lg]+', '+x.day+' '+x.time+' GMT)\n'+
+    'Marchés du modèle (probabilités) : '+x.r.markets.slice(0,8).map(function(m){return m.l+' '+pc(m.p);}).join(' ; ')+'\n'+
+    'Buts attendus : '+x.home+' '+x.lh.toFixed(2)+', '+x.away+' '+x.la.toFixed(2)+'\n'+
+    'Forme de '+x.home+' : '+teamForm(x.home,x.day)+'\n'+'Forme de '+x.away+' : '+teamForm(x.away,x.day);
+}
+var AI_RULES="Tu es un analyste football prudent. Appuie-toi UNIQUEMENT sur les données ci-dessous : n'invente aucune statistique, blessure, composition ou cote. Réponds en français, clairement, sans promettre de résultat. ";
+function aiRun(prompt,out,btn){
+  if(AI_BUSY)return;
+  var c=window.claude;
+  out.hidden=false;
+  if(!c||!c.use){out.textContent="L'analyse IA fonctionne uniquement quand la page est ouverte dans Claude.";return;}
+  AI_BUSY=true;btn.disabled=true;out.textContent='Analyse en cours…';
+  var done=function(){AI_BUSY=false;btn.disabled=false;};
+  c.use('sample').then(function(sample){
+    if(!sample){out.textContent="L'analyse IA n'est pas disponible dans cette vue.";return;}
+    return sample(prompt,{modelTier:'default',cache:false,onText:function(t){out.textContent=t.text;}}).then(function(r){out.textContent=r.text;});
+  }).catch(function(e){
+    out.textContent=(e&&e.code==='not_granted')?"Accès à l'IA refusé. Vous pouvez réessayer et accepter.":(e&&e.code==='rate_limited')?"Trop de demandes, réessayez dans une minute.":"L'analyse IA a échoué, réessayez.";
+  }).then(done,done);
+}
+function aiBtn(i){return '<button type="button" class="ai-btn" data-ai="m'+i+'">🤖 Analyse IA</button><div class="ai-out" hidden></div>';}
+function aiCouponBtn(kind){return '<button type="button" class="ai-btn" data-ai="'+kind+'">🤖 Analyse IA du coupon</button><div class="ai-out" hidden></div>';}
+document.addEventListener('click',function(e){
+  var b=e.target.closest&&e.target.closest('.ai-btn');if(!b)return;
+  var k=b.getAttribute('data-ai'),out=b.nextElementSibling,prompt;
+  if(k[0]==='m'){
+    var x=PRE[parseInt(k.slice(1),10)];if(!x)return;
+    prompt=AI_RULES+"Analyse ce match en 120 mots maximum : (1) la lecture du match, en vérifiant la cohérence entre les probabilités, les buts attendus et la forme récente ; (2) un point de vigilance ; (3) un verdict d'une ligne : le marché parmi ceux listés qui te semble le plus cohérent, ou « à éviter ». Si la forme est inconnue, dis-le.\n\n"+matchFacts(x);
+  }else if(k==='pro'){
+    if(!AI_PRO.length)return;
+    prompt=AI_RULES+"Voici un coupon de "+AI_PRO.length+" pronostics. En 200 mots maximum : vérifie la cohérence du coupon (pronostics corrélés, maillon fragile, effet de cumul), classe chaque pronostic en « solide », « acceptable » ou « fragile » avec une raison courte, puis dis lequel remplacer, uniquement par un autre marché déjà listé pour le même match.\n\n"+AI_PRO.map(function(o,i){return (i+1)+') Pronostic retenu : '+o.k.l+' '+pc(o.k.p)+'\n'+matchFacts(o.x);}).join('\n\n');
+  }else if(k==='risk'){
+    if(!AI_RISK.length)return;
+    var pr=1;AI_RISK.forEach(function(o){pr*=o.p;});
+    prompt=AI_RULES+"Voici un coupon risqué de "+AI_RISK.length+" pronostics dont la cote équitable combinée est d'environ "+f2(1/pr)+" ("+pc(pr)+" de chances que tout passe). En 180 mots maximum : dis si le coupon est cohérent, quel pronostic est le plus fragile, et rappelle honnêtement le risque. N'ajoute aucun autre match.\n\n"+AI_RISK.map(function(o,i){return (i+1)+') '+o.name+' ('+o.meta+') : '+o.label+' '+pc(o.p);}).join('\n');
+  }else return;
+  aiRun(prompt,out,b);
+});
+if(!window.claude)document.documentElement.classList.add('noai');
 function renderStale(){
   var t=new Date().toISOString().slice(0,10),el=$('stale');
   if(PRE_DAYS.indexOf(t)<0){
